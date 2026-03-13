@@ -135,7 +135,7 @@ class _CadastrarInventarioPageState extends State<CadastrarInventarioPage> {
                 ),
               ),
             ),
-            const NavBarWidget(),
+            const NavBarWidget(selectedIndex: 1),
           ],
         ),
       ),

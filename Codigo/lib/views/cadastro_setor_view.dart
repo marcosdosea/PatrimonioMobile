@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '/models/setor_model.dart';
-import '/services/setor_service.dart';
 import '/widgets/custom_navbar.dart';
 
 class CadastroSetorView extends StatefulWidget {
@@ -30,7 +28,9 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
   @override
   void initState() {
     super.initState();
-    _loadSetores();
+    _setorController =
+        TextEditingController(text: 'Digite o nome do novo setor');
+    _setorFocusNode = FocusNode();
   }
 
   @override
@@ -130,11 +130,13 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
                       color: Color(0xFFEFF0F6),
                     ),
                     child: Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(20, 40, 20, 20),
+                      padding:
+                          const EdgeInsetsDirectional.fromSTEB(20, 40, 20, 20),
                       child: Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.arrow_back, size: 40, color: Color(0xFF57636C)),
+                            icon: const Icon(Icons.arrow_back,
+                                size: 40, color: Color(0xFF57636C)),
                             onPressed: () => Navigator.pop(context),
                           ),
                           const SizedBox(width: 10),
@@ -150,7 +152,6 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
                       ),
                     ),
                   ),
-
                   Expanded(
                     child: Container(
                       width: double.infinity,
@@ -174,31 +175,28 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
                                 color: const Color(0xFF57636C),
                               ),
                             ),
-                            
-                            DropdownButtonFormField<int>(
-                              initialValue: _idInstituicaoSelecionada,
+                            DropdownButtonFormField<String>(
+                              value: instituicaoSelecionada,
                               decoration: InputDecoration(
                                 filled: true,
                                 fillColor: Colors.white,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                                contentPadding:
+                                    const EdgeInsets.symmetric(horizontal: 12),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: Color(0x9A57636C)),
+                                  borderSide: const BorderSide(
+                                      color: Color(0x9A57636C)),
                                 ),
                               ),
-                              items: _instituicoesMock
-                                  .map((item) => DropdownMenuItem<int>(
-                                        value: item['id'] as int,
-                                        child: Text(item['nome'] as String),
-                                      ))
+                              hint:
+                                  const Text('Departamento de sistemas de...'),
+                              items: ['Opção 1', 'Opção 2', 'Opção 3']
+                                  .map((val) => DropdownMenuItem(
+                                      value: val, child: Text(val)))
                                   .toList(),
-                              onChanged: (val) {
-                                if (val != null) {
-                                  setState(() => _idInstituicaoSelecionada = val);
-                                }
-                              },
+                              onChanged: (val) =>
+                                  setState(() => instituicaoSelecionada = val),
                             ),
-
                             const SizedBox(height: 20),
                             Text(
                               'Setores',
@@ -208,7 +206,6 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
                                 color: const Color(0xFF57636C),
                               ),
                             ),
-
                             Expanded(
                               child: _isLoading
                                   ? const Center(child: CircularProgressIndicator())
@@ -224,7 +221,6 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
                                           },
                                         ),
                             ),
-
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 20),
                               child: TextFormField(
@@ -246,14 +242,15 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
                             ElevatedButton(
                               onPressed: _addSetor,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0055FF), 
+                                backgroundColor: const Color(0xFF0055FF),
                                 minimumSize: const Size(double.infinity, 50),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
                               ),
                               child: Text(
                                 'Adicionar setor',
                                 style: GoogleFonts.interTight(
-                                  fontSize: 18, 
+                                  fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white,
                                 ),
@@ -267,7 +264,7 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
                 ],
               ),
             ),
-            const NavBarWidget(),
+            const NavBarWidget(selectedIndex: 1),
           ],
         ),
       ),
@@ -281,7 +278,10 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(blurRadius: 3, color: Colors.black.withOpacity(0.1), offset: const Offset(0, 2))
+          BoxShadow(
+              blurRadius: 3,
+              color: Colors.black.withOpacity(0.1),
+              offset: const Offset(0, 2))
         ],
       ),
       child: Row(
@@ -298,15 +298,17 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
           ),
           Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.edit, color: Colors.blue, size: 24),
-                onPressed: () => _showEditDialog(setor),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.red, size: 24),
-                onPressed: () => _deleteSetor(setor.id!),
-              ),
+              Text(id,
+                  style: GoogleFonts.inter(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(width: 15),
+              Text(nome, style: GoogleFonts.inter(fontSize: 18)),
             ],
+          ),
+          IconButton(
+            icon:
+                const Icon(Icons.cancel_outlined, color: Colors.red, size: 24),
+            onPressed: () => print('Remover setor'),
           ),
         ],
       ),
