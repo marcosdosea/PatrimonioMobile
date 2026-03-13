@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '/widgets/custom_navbar.dart'; 
+import '/models/setor_model.dart';
+import '/services/setor_service.dart';
+import '/widgets/custom_navbar.dart';
 
 class CadastroSetorView extends StatefulWidget {
   const CadastroSetorView({super.key});
@@ -10,16 +12,25 @@ class CadastroSetorView extends StatefulWidget {
 }
 
 class _CadastroSetorViewState extends State<CadastroSetorView> {
-  late TextEditingController _setorController;
-  late FocusNode _setorFocusNode;
-  String? instituicaoSelecionada;
+  final _setorService = SetorService();
+  final _setorController = TextEditingController();
+  final _setorFocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  /// Mock institutions for this screen (no DB access to avoid conflicts with other branches).
+  final _instituicoesMock = const [
+    {'id': 1, 'nome': 'Instituição Padrão'},
+    {'id': 2, 'nome': 'Outro Departamento'},
+  ];
+
+  int _idInstituicaoSelecionada = 1;
+  List<Setor> _setores = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _setorController = TextEditingController(text: 'Digite o nome do novo setor');
-    _setorFocusNode = FocusNode();
+    _loadSetores();
   }
 
   @override
@@ -27,6 +38,72 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
     _setorController.dispose();
     _setorFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadSetores() async {
+    setState(() => _isLoading = true);
+    _setores = await _setorService.queryAllSetores();
+    setState(() => _isLoading = false);
+  }
+
+  Future<void> _addSetor() async {
+    final nome = _setorController.text.trim();
+    if (nome.isEmpty) return;
+
+    final novo = Setor(nome: nome, idInstituicao: _idInstituicaoSelecionada);
+    await _setorService.insertSetor(novo);
+    _setorController.clear();
+    _setorFocusNode.unfocus();
+    await _loadSetores();
+  }
+
+  Future<void> _updateSetor(Setor setor, String novoNome) async {
+    final nome = novoNome.trim();
+    if (nome.isEmpty) return;
+
+    final updated = Setor(
+      id: setor.id,
+      nome: nome,
+      idInstituicao: setor.idInstituicao,
+    );
+
+    await _setorService.updateSetor(updated);
+    await _loadSetores();
+  }
+
+  Future<void> _deleteSetor(int id) async {
+    await _setorService.deleteSetor(id);
+    await _loadSetores();
+  }
+
+  void _showEditDialog(Setor setor) {
+    final controller = TextEditingController(text: setor.nome);
+
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Editar setor'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: const InputDecoration(hintText: 'Nome do setor'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _updateSetor(setor, controller.text).then((_) => Navigator.of(context).pop());
+              },
+              child: const Text('Salvar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -98,8 +175,8 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
                               ),
                             ),
                             
-                            DropdownButtonFormField<String>(
-                              value: instituicaoSelecionada,
+                            DropdownButtonFormField<int>(
+                              initialValue: _idInstituicaoSelecionada,
                               decoration: InputDecoration(
                                 filled: true,
                                 fillColor: Colors.white,
@@ -109,11 +186,17 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
                                   borderSide: const BorderSide(color: Color(0x9A57636C)),
                                 ),
                               ),
-                              hint: const Text('Departamento de sistemas de...'),
-                              items: ['Opção 1', 'Opção 2', 'Opção 3']
-                                  .map((val) => DropdownMenuItem(value: val, child: Text(val)))
+                              items: _instituicoesMock
+                                  .map((item) => DropdownMenuItem<int>(
+                                        value: item['id'] as int,
+                                        child: Text(item['nome'] as String),
+                                      ))
                                   .toList(),
-                              onChanged: (val) => setState(() => instituicaoSelecionada = val),
+                              onChanged: (val) {
+                                if (val != null) {
+                                  setState(() => _idInstituicaoSelecionada = val);
+                                }
+                              },
                             ),
 
                             const SizedBox(height: 20),
@@ -127,13 +210,19 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
                             ),
 
                             Expanded(
-                              child: ListView(
-                                padding: const EdgeInsets.only(top: 10),
-                                children: [
-                                  _buildSetorItem('1', 'Laboratório 1'),
-                                  const SizedBox(height: 10),
-                                ],
-                              ),
+                              child: _isLoading
+                                  ? const Center(child: CircularProgressIndicator())
+                                  : _setores.isEmpty
+                                      ? const Center(child: Text('Nenhum setor encontrado.'))
+                                      : ListView.separated(
+                                          padding: const EdgeInsets.only(top: 10),
+                                          itemCount: _setores.length,
+                                          separatorBuilder: (_, __) => const SizedBox(height: 10),
+                                          itemBuilder: (context, index) {
+                                            final setor = _setores[index];
+                                            return _buildSetorItem(setor);
+                                          },
+                                        ),
                             ),
 
                             Padding(
@@ -142,6 +231,7 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
                                 controller: _setorController,
                                 focusNode: _setorFocusNode,
                                 decoration: InputDecoration(
+                                  hintText: 'Nome do setor',
                                   filled: true,
                                   fillColor: const Color(0xFFEFF0F6),
                                   border: OutlineInputBorder(
@@ -150,10 +240,11 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
                                   ),
                                 ),
                                 style: GoogleFonts.inter(fontSize: 18),
+                                onFieldSubmitted: (_) => _addSetor(),
                               ),
                             ),
                             ElevatedButton(
-                              onPressed: () => print('Adicionar setor'),
+                              onPressed: _addSetor,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF0055FF), 
                                 minimumSize: const Size(double.infinity, 50),
@@ -183,7 +274,7 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
     );
   }
 
-  Widget _buildSetorItem(String id, String nome) {
+  Widget _buildSetorItem(Setor setor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       decoration: BoxDecoration(
@@ -196,16 +287,26 @@ class _CadastroSetorViewState extends State<CadastroSetorView> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          Expanded(
+            child: Row(
+              children: [
+                Text('${setor.id}', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(width: 15),
+                Expanded(child: Text(setor.nome, style: GoogleFonts.inter(fontSize: 18))),
+              ],
+            ),
+          ),
           Row(
             children: [
-              Text(id, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(width: 15),
-              Text(nome, style: GoogleFonts.inter(fontSize: 18)),
+              IconButton(
+                icon: const Icon(Icons.edit, color: Colors.blue, size: 24),
+                onPressed: () => _showEditDialog(setor),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: Colors.red, size: 24),
+                onPressed: () => _deleteSetor(setor.id!),
+              ),
             ],
-          ),
-          IconButton(
-            icon: const Icon(Icons.cancel_outlined, color: Colors.red, size: 24),
-            onPressed: () => print('Remover setor'),
           ),
         ],
       ),

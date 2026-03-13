@@ -19,4 +19,23 @@ class SetorService {
       return Setor.fromMap(maps[i]);
     });
   }
+
+  Future<int> updateSetor(Setor setor) async {
+    Database db = await _dbHelper.database;
+    return await db.update(
+      'Setor',
+      setor.toMap(),
+      where: 'id = ?',
+      whereArgs: [setor.id],
+    );
+  }
+
+  Future<int> deleteSetor(int id) async {
+    Database db = await _dbHelper.database;
+    return await db.delete(
+      'Setor',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
 }

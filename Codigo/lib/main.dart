@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:patrimonio_mobile/views/home_view.dart';
 import 'package:patrimonio_mobile/views/scanner_view.dart';
 
 void main() async {
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const HomePage(),
+      home: const HomeView(),
     );
   }
 }
