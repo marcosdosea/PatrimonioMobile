@@ -1,24 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '/widgets/custom_navbar.dart'; 
+import '/models/instituicao_model.dart';
+import '/services/instituicao_service.dart';
+import '/widgets/custom_navbar.dart';
 
 class CadastroInstituicaoView extends StatefulWidget {
   const CadastroInstituicaoView({super.key});
 
   @override
-  State<CadastroInstituicaoView> createState() => _CadastroInstituicaoViewState();
+  State<CadastroInstituicaoView> createState() =>
+      _CadastroInstituicaoViewState();
 }
 
 class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
   late TextEditingController _textController;
   late FocusNode _textFieldFocusNode;
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  final InstituicaoService _instituicaoService = InstituicaoService();
+
+  List<Instituicao> _instituicoes = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _textController = TextEditingController(text: 'Digite o nome da instituição');
+    _textController = TextEditingController();
     _textFieldFocusNode = FocusNode();
+    _carregarInstituicoes();
   }
 
   @override
@@ -26,6 +34,58 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
     _textController.dispose();
     _textFieldFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> _carregarInstituicoes() async {
+    setState(() => _isLoading = true);
+    try {
+      final instituicoes = await _instituicaoService.queryAllInstituicoes();
+      if (!mounted) return;
+      setState(() {
+        _instituicoes = instituicoes;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao carregar instituições: $e')),
+      );
+    }
+  }
+
+  Future<void> _adicionarInstituicao() async {
+    final nome = _textController.text.trim();
+    if (nome.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Digite o nome da instituição.')),
+      );
+      return;
+    }
+
+    try {
+      await _instituicaoService.insertInstituicao(Instituicao(nome: nome));
+      _textController.clear();
+      _textFieldFocusNode.unfocus();
+      await _carregarInstituicoes();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao adicionar instituição: $e')),
+      );
+    }
+  }
+
+  Future<void> _removerInstituicao(int id) async {
+    try {
+      await _instituicaoService.deleteInstituicao(id);
+      await _carregarInstituicoes();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao remover instituição: $e')),
+      );
+    }
   }
 
   @override
@@ -52,16 +112,18 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
                       color: Color(0xFFEFF0F6),
                     ),
                     child: Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(20, 40, 20, 20),
+                      padding:
+                          const EdgeInsetsDirectional.fromSTEB(20, 40, 20, 20),
                       child: Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.arrow_back, size: 40, color: Color(0xFF57636C)),
-                            onPressed: () => Navigator.pop(context), 
+                            icon: const Icon(Icons.arrow_back,
+                                size: 40, color: Color(0xFF57636C)),
+                            onPressed: () => Navigator.pop(context),
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            'Cadastrar instituição', 
+                            'Cadastrar instituição',
                             style: GoogleFonts.inter(
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
@@ -72,7 +134,6 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
                       ),
                     ),
                   ),
-
                   Expanded(
                     child: Container(
                       width: double.infinity,
@@ -96,22 +157,46 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
                                 color: const Color(0xFF57636C),
                               ),
                             ),
-                            
                             Expanded(
-                              child: ListView(
-                                padding: const EdgeInsets.only(top: 10),
-                                children: [
-                                  _buildInstituicaoItem('1', 'Departamento de sistemas de...'),
-                                  const SizedBox(height: 10),
-                                ],
-                              ),
+                              child: _isLoading
+                                  ? const Center(
+                                      child: CircularProgressIndicator())
+                                  : _instituicoes.isEmpty
+                                      ? Center(
+                                          child: Text(
+                                            'Nenhuma instituição cadastrada.',
+                                            style:
+                                                GoogleFonts.inter(fontSize: 16),
+                                          ),
+                                        )
+                                      : ListView.separated(
+                                          padding:
+                                              const EdgeInsets.only(top: 10),
+                                          itemCount: _instituicoes.length,
+                                          separatorBuilder: (_, __) =>
+                                              const SizedBox(height: 10),
+                                          itemBuilder: (context, index) {
+                                            final instituicao =
+                                                _instituicoes[index];
+                                            return _buildInstituicaoItem(
+                                              id: (index + 1).toString(),
+                                              nome: instituicao.nome,
+                                              onRemover: instituicao.id == null
+                                                  ? null
+                                                  : () => _removerInstituicao(
+                                                      instituicao.id!),
+                                            );
+                                          },
+                                        ),
                             ),
-
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 20),
                               child: TextFormField(
                                 controller: _textController,
                                 focusNode: _textFieldFocusNode,
+                                textInputAction: TextInputAction.done,
+                                onFieldSubmitted: (_) =>
+                                    _adicionarInstituicao(),
                                 decoration: InputDecoration(
                                   filled: true,
                                   fillColor: const Color(0xFFEFF0F6),
@@ -124,18 +209,18 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
                                 style: GoogleFonts.inter(fontSize: 18),
                               ),
                             ),
-
                             ElevatedButton(
-                              onPressed: () => print('Adicionar Instituição'),
+                              onPressed: _adicionarInstituicao,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0055FF), 
+                                backgroundColor: const Color(0xFF0055FF),
                                 minimumSize: const Size(double.infinity, 50),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
                               ),
                               child: Text(
                                 'Adicionar Instituição',
                                 style: GoogleFonts.interTight(
-                                  fontSize: 18, 
+                                  fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white,
                                 ),
@@ -156,14 +241,21 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
     );
   }
 
-  Widget _buildInstituicaoItem(String id, String nome) {
+  Widget _buildInstituicaoItem({
+    required String id,
+    required String nome,
+    required VoidCallback? onRemover,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(blurRadius: 3, color: Colors.black.withOpacity(0.1), offset: const Offset(0, 2))
+          BoxShadow(
+              blurRadius: 3,
+              color: Colors.black.withOpacity(0.1),
+              offset: const Offset(0, 2))
         ],
       ),
       child: Row(
@@ -171,14 +263,17 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
         children: [
           Row(
             children: [
-              Text(id, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(id,
+                  style: GoogleFonts.inter(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(width: 15),
               Text(nome, style: GoogleFonts.inter(fontSize: 16)),
             ],
           ),
           IconButton(
-            icon: const Icon(Icons.cancel_outlined, color: Colors.red, size: 24),
-            onPressed: () => print('Remover Instituição'),
+            icon:
+                const Icon(Icons.cancel_outlined, color: Colors.red, size: 24),
+            onPressed: onRemover,
           ),
         ],
       ),
