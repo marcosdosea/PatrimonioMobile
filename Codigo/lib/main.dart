@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'views/inventario_view.dart';
+import 'package:patrimonio_mobile/views/home_view.dart';
 
 void main() async {
   // Garante que os widgets do Flutter estejam inicializados antes de abrir o banco
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const InventarioView(),
+      home: const HomeView(),
     );
   }
 }
