@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '/widgets/custom_navbar.dart'; 
+import 'package:patrimonio_mobile/models/instituicao_model.dart';
+import 'package:patrimonio_mobile/services/instituicao_service.dart';
+import '/widgets/custom_navbar.dart';
 
 class CadastroInstituicaoView extends StatefulWidget {
   const CadastroInstituicaoView({super.key});
 
   @override
-  State<CadastroInstituicaoView> createState() => _CadastroInstituicaoViewState();
+  State<CadastroInstituicaoView> createState() =>
+      _CadastroInstituicaoViewState();
 }
 
 class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
+  final _instituicaoService = InstituicaoService();
   late TextEditingController _textController;
   late FocusNode _textFieldFocusNode;
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -17,8 +21,30 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
   @override
   void initState() {
     super.initState();
-    _textController = TextEditingController(text: 'Digite o nome da instituição');
+    _textController = TextEditingController();
     _textFieldFocusNode = FocusNode();
+  }
+
+  Future<void> _salvarInstituicao() async {
+    final nome = _textController.text.trim();
+
+    if (nome.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Digite o nome da instituição.')),
+      );
+      return;
+    }
+
+    await _instituicaoService.insertInstituicao(
+      Instituicao(nome: nome),
+    );
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Instituição cadastrada com sucesso.')),
+    );
+    Navigator.pop(context);
   }
 
   @override
@@ -52,16 +78,18 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
                       color: Color(0xFFEFF0F6),
                     ),
                     child: Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(20, 40, 20, 20),
+                      padding:
+                          const EdgeInsetsDirectional.fromSTEB(20, 40, 20, 20),
                       child: Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.arrow_back, size: 40, color: Color(0xFF57636C)),
-                            onPressed: () => Navigator.pop(context), 
+                            icon: const Icon(Icons.arrow_back,
+                                size: 40, color: Color(0xFF57636C)),
+                            onPressed: () => Navigator.pop(context),
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            'Cadastrar instituição', 
+                            'Cadastrar instituição',
                             style: GoogleFonts.inter(
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
@@ -72,7 +100,6 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
                       ),
                     ),
                   ),
-
                   Expanded(
                     child: Container(
                       width: double.infinity,
@@ -89,26 +116,16 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Instituições',
+                              'Nova instituição',
                               style: GoogleFonts.interTight(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
                                 color: const Color(0xFF57636C),
                               ),
                             ),
-                            
-                            Expanded(
-                              child: ListView(
-                                padding: const EdgeInsets.only(top: 10),
-                                children: [
-                                  _buildInstituicaoItem('1', 'Departamento de sistemas de...'),
-                                  const SizedBox(height: 10),
-                                ],
-                              ),
-                            ),
-
+                            const SizedBox(height: 16),
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
                               child: TextFormField(
                                 controller: _textController,
                                 focusNode: _textFieldFocusNode,
@@ -124,23 +141,25 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
                                 style: GoogleFonts.inter(fontSize: 18),
                               ),
                             ),
-
+                            const Spacer(),
                             ElevatedButton(
-                              onPressed: () => print('Adicionar Instituição'),
+                              onPressed: _salvarInstituicao,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0055FF), 
+                                backgroundColor: const Color(0xFF0055FF),
                                 minimumSize: const Size(double.infinity, 50),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
                               ),
                               child: Text(
                                 'Adicionar Instituição',
                                 style: GoogleFonts.interTight(
-                                  fontSize: 18, 
+                                  fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white,
                                 ),
                               ),
                             ),
+                            const SizedBox(height: 16),
                           ],
                         ),
                       ),
@@ -152,35 +171,6 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
             const NavBarWidget(selectedIndex: 1),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildInstituicaoItem(String id, String nome) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(blurRadius: 3, color: Colors.black.withOpacity(0.1), offset: const Offset(0, 2))
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Text(id, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(width: 15),
-              Text(nome, style: GoogleFonts.inter(fontSize: 16)),
-            ],
-          ),
-          IconButton(
-            icon: const Icon(Icons.cancel_outlined, color: Colors.red, size: 24),
-            onPressed: () => print('Remover Instituição'),
-          ),
-        ],
       ),
     );
   }
