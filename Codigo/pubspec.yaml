@@ -17,3 +17,6 @@ dependencies:
   
 flutter:
   uses-material-design: true
+
+dev_dependencies:
+  sqflite_common_ffi: ^2.3.4+4

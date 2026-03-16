@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:patrimonio_mobile/views/home_view.dart';
 
-void main() async {
-  // Garante que os widgets do Flutter estejam inicializados antes de abrir o banco
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
@@ -12,9 +11,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const HomeView(),
+      home: HomeView(),
     );
   }
 }
