@@ -1,17 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-<<<<<<< HEAD
 import 'package:patrimonio_mobile/models/instituicao_model.dart';
 import 'package:patrimonio_mobile/services/instituicao_service.dart';
 import 'package:patrimonio_mobile/views/cadastro_instituicao_view.dart';
-import 'package:patrimonio_mobile/views/deletar_instituicao_view.dart';
-=======
-
-import '../models/instituicao_model.dart';
-import '../services/instituicao_service.dart';
-import '../views/cadastro_instituicao_view.dart';
-import '../widgets/custom_navbar.dart';
->>>>>>> 169dadfc364fcccc5d2aef6e4bdd2d12d0e77a55
+import 'package:patrimonio_mobile/widgets/custom_navbar.dart';
 
 class InstituicaoView extends StatefulWidget {
   const InstituicaoView({super.key});
@@ -21,119 +13,18 @@ class InstituicaoView extends StatefulWidget {
 }
 
 class _InstituicaoViewState extends State<InstituicaoView> {
-<<<<<<< HEAD
-  final _instituicaoService = InstituicaoService();
-
-  List<Instituicao> _instituicoes = [];
-  bool _loading = true;
-=======
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final InstituicaoService _instituicaoService = InstituicaoService();
 
   List<Instituicao> _instituicoes = [];
   bool _carregando = true;
->>>>>>> 169dadfc364fcccc5d2aef6e4bdd2d12d0e77a55
 
   @override
   void initState() {
     super.initState();
-<<<<<<< HEAD
-    _loadInstituicoes();
-=======
     _carregarInstituicoes();
->>>>>>> 169dadfc364fcccc5d2aef6e4bdd2d12d0e77a55
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-<<<<<<< HEAD
-  Future<void> _loadInstituicoes() async {
-    setState(() => _loading = true);
-
-    final instituicoes = await _instituicaoService.queryAllInstituicoes();
-
-    setState(() {
-      _instituicoes = instituicoes;
-      _loading = false;
-    });
-  }
-
-  Future<void> _abrirCadastroInstituicao() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const CadastroInstituicaoView(),
-      ),
-    );
-
-    await _loadInstituicoes();
-  }
-
-  Future<void> _abrirExclusaoInstituicao(Instituicao instituicao) async {
-    final excluiu = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DeletarInstituicaoView(
-          instituicao: instituicao,
-        ),
-      ),
-    );
-
-    if (excluiu == true) {
-      await _loadInstituicoes();
-    }
-  }
-
-  Widget _buildInstituicaoItem(Instituicao instituicao) {
-    return InkWell(
-      onTap: () => _abrirExclusaoInstituicao(instituicao),
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            )
-          ],
-        ),
-        child: Row(
-          children: [
-            Text(
-              '${instituicao.id}',
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.black54,
-              ),
-            ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Text(
-                instituicao.nome,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              size: 18,
-              color: Color(0xFF57636C),
-            ),
-          ],
-        ),
-      ),
-    );
-=======
   Future<void> _carregarInstituicoes() async {
     setState(() => _carregando = true);
 
@@ -147,6 +38,7 @@ class _InstituicaoViewState extends State<InstituicaoView> {
       });
     } catch (e) {
       if (!mounted) return;
+
       setState(() => _carregando = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao carregar instituições: $e')),
@@ -154,61 +46,20 @@ class _InstituicaoViewState extends State<InstituicaoView> {
     }
   }
 
-  Future<void> _removerInstituicao(int id) async {
-    try {
-      await _instituicaoService.deleteInstituicao(id);
-      await _carregarInstituicoes();
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao remover instituição: $e')),
-      );
-    }
->>>>>>> 169dadfc364fcccc5d2aef6e4bdd2d12d0e77a55
+  Future<void> _abrirCadastroInstituicao() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const CadastroInstituicaoView(),
+      ),
+    );
+
+    if (!mounted) return;
+    await _carregarInstituicoes();
   }
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
-    return Scaffold(
-      backgroundColor: const Color(0xFFF1F4F8),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFEFF0F6),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF57636C)),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Instituições',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w600,
-            color: const Color(0xFF57636C),
-          ),
-        ),
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _instituicoes.isEmpty
-              ? const Center(
-                  child: Text('Nenhuma instituição cadastrada.'),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _instituicoes.length,
-                  itemBuilder: (context, index) {
-                    final instituicao = _instituicoes[index];
-                    return _buildInstituicaoItem(instituicao);
-                  },
-                ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _abrirCadastroInstituicao,
-        backgroundColor: const Color(0xFF0055FF),
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          'Adicionar',
-          style: TextStyle(color: Colors.white),
-=======
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -236,8 +87,11 @@ class _InstituicaoViewState extends State<InstituicaoView> {
                       child: Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.arrow_back,
-                                size: 40, color: Color(0xFF57636C)),
+                            icon: const Icon(
+                              Icons.arrow_back,
+                              size: 40,
+                              color: Color(0xFF57636C),
+                            ),
                             onPressed: () => Navigator.pop(context),
                           ),
                           const SizedBox(width: 10),
@@ -280,7 +134,8 @@ class _InstituicaoViewState extends State<InstituicaoView> {
                             Expanded(
                               child: _carregando
                                   ? const Center(
-                                      child: CircularProgressIndicator())
+                                      child: CircularProgressIndicator(),
+                                    )
                                   : _instituicoes.isEmpty
                                       ? Center(
                                           child: Text(
@@ -307,16 +162,7 @@ class _InstituicaoViewState extends State<InstituicaoView> {
                             ),
                             const SizedBox(height: 16),
                             ElevatedButton.icon(
-                              onPressed: () async {
-                                await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const CadastroInstituicaoView(),
-                                  ),
-                                );
-                                await _carregarInstituicoes();
-                              },
+                              onPressed: _abrirCadastroInstituicao,
                               icon: const Icon(Icons.add, color: Colors.white),
                               label: Text(
                                 'Cadastrar instituição',
@@ -330,7 +176,8 @@ class _InstituicaoViewState extends State<InstituicaoView> {
                                 backgroundColor: const Color(0xFF0055FF),
                                 minimumSize: const Size(double.infinity, 50),
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12)),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                             ),
                           ],
@@ -343,16 +190,15 @@ class _InstituicaoViewState extends State<InstituicaoView> {
             ),
             const NavBarWidget(),
           ],
->>>>>>> 169dadfc364fcccc5d2aef6e4bdd2d12d0e77a55
         ),
       ),
     );
   }
-<<<<<<< HEAD
-=======
 
-  Widget _buildInstituicaoItem(
-      {required Instituicao instituicao, required int posicao}) {
+  Widget _buildInstituicaoItem({
+    required Instituicao instituicao,
+    required int posicao,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       decoration: BoxDecoration(
@@ -360,16 +206,20 @@ class _InstituicaoViewState extends State<InstituicaoView> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              blurRadius: 3,
-              color: Colors.black.withOpacity(0.1),
-              offset: const Offset(0, 2)),
+            blurRadius: 3,
+            color: Colors.black.withOpacity(0.1),
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Row(
         children: [
           Text(
             posicao.toString(),
-            style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold),
+            style: GoogleFonts.inter(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(width: 15),
           Expanded(
@@ -378,16 +228,8 @@ class _InstituicaoViewState extends State<InstituicaoView> {
               style: GoogleFonts.inter(fontSize: 16),
             ),
           ),
-          IconButton(
-            icon:
-                const Icon(Icons.cancel_outlined, color: Colors.red, size: 24),
-            onPressed: instituicao.id == null
-                ? null
-                : () => _removerInstituicao(instituicao.id!),
-          ),
         ],
       ),
     );
   }
->>>>>>> 169dadfc364fcccc5d2aef6e4bdd2d12d0e77a55
 }

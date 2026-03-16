@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-<<<<<<< HEAD
 import 'package:patrimonio_mobile/models/instituicao_model.dart';
 import 'package:patrimonio_mobile/services/instituicao_service.dart';
-=======
-import '/models/instituicao_model.dart';
-import '/services/instituicao_service.dart';
->>>>>>> 169dadfc364fcccc5d2aef6e4bdd2d12d0e77a55
-import '/widgets/custom_navbar.dart';
+import 'package:patrimonio_mobile/widgets/custom_navbar.dart';
 
 class CadastroInstituicaoView extends StatefulWidget {
   const CadastroInstituicaoView({super.key});
@@ -18,11 +13,10 @@ class CadastroInstituicaoView extends StatefulWidget {
 }
 
 class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
-  final _instituicaoService = InstituicaoService();
-  late TextEditingController _textController;
-  late FocusNode _textFieldFocusNode;
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final InstituicaoService _instituicaoService = InstituicaoService();
+  late final TextEditingController _textController;
+  late final FocusNode _textFieldFocusNode;
 
   List<Instituicao> _instituicoes = [];
   bool _isLoading = true;
@@ -35,28 +29,6 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
     _carregarInstituicoes();
   }
 
-  Future<void> _salvarInstituicao() async {
-    final nome = _textController.text.trim();
-
-    if (nome.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Digite o nome da instituição.')),
-      );
-      return;
-    }
-
-    await _instituicaoService.insertInstituicao(
-      Instituicao(nome: nome),
-    );
-
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Instituição cadastrada com sucesso.')),
-    );
-    Navigator.pop(context);
-  }
-
   @override
   void dispose() {
     _textController.dispose();
@@ -66,15 +38,18 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
 
   Future<void> _carregarInstituicoes() async {
     setState(() => _isLoading = true);
+
     try {
       final instituicoes = await _instituicaoService.queryAllInstituicoes();
       if (!mounted) return;
+
       setState(() {
         _instituicoes = instituicoes;
         _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
+
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao carregar instituições: $e')),
@@ -84,6 +59,7 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
 
   Future<void> _adicionarInstituicao() async {
     final nome = _textController.text.trim();
+
     if (nome.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Digite o nome da instituição.')),
@@ -93,11 +69,17 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
 
     try {
       await _instituicaoService.insertInstituicao(Instituicao(nome: nome));
+      if (!mounted) return;
+
       _textController.clear();
       _textFieldFocusNode.unfocus();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Instituição cadastrada com sucesso.')),
+      );
       await _carregarInstituicoes();
     } catch (e) {
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao adicionar instituição: $e')),
       );
@@ -107,12 +89,53 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
   Future<void> _removerInstituicao(int id) async {
     try {
       await _instituicaoService.deleteInstituicao(id);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Instituição excluída com sucesso.')),
+      );
       await _carregarInstituicoes();
     } catch (e) {
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao remover instituição: $e')),
       );
+    }
+  }
+
+  Future<void> _confirmarExclusaoInstituicao({
+    required int id,
+    required String nome,
+  }) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Excluir instituição'),
+          content: Text('Deseja realmente excluir a instituição "$nome"?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFE53935),
+              ),
+              child: const Text(
+                'Excluir',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar == true) {
+      await _removerInstituicao(id);
     }
   }
 
@@ -145,8 +168,11 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
                       child: Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.arrow_back,
-                                size: 40, color: Color(0xFF57636C)),
+                            icon: const Icon(
+                              Icons.arrow_back,
+                              size: 40,
+                              color: Color(0xFF57636C),
+                            ),
                             onPressed: () => Navigator.pop(context),
                           ),
                           const SizedBox(width: 10),
@@ -185,24 +211,24 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
                                 color: const Color(0xFF57636C),
                               ),
                             ),
-<<<<<<< HEAD
-                            const SizedBox(height: 16),
-=======
+                            const SizedBox(height: 12),
                             Expanded(
                               child: _isLoading
                                   ? const Center(
-                                      child: CircularProgressIndicator())
+                                      child: CircularProgressIndicator(),
+                                    )
                                   : _instituicoes.isEmpty
                                       ? Center(
                                           child: Text(
                                             'Nenhuma instituição cadastrada.',
-                                            style:
-                                                GoogleFonts.inter(fontSize: 16),
+                                            style: GoogleFonts.inter(
+                                              fontSize: 16,
+                                            ),
                                           ),
                                         )
                                       : ListView.separated(
                                           padding:
-                                              const EdgeInsets.only(top: 10),
+                                              const EdgeInsets.only(bottom: 12),
                                           itemCount: _instituicoes.length,
                                           separatorBuilder: (_, __) =>
                                               const SizedBox(height: 10),
@@ -214,13 +240,15 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
                                               nome: instituicao.nome,
                                               onRemover: instituicao.id == null
                                                   ? null
-                                                  : () => _removerInstituicao(
-                                                      instituicao.id!),
+                                                  : () =>
+                                                      _confirmarExclusaoInstituicao(
+                                                        id: instituicao.id!,
+                                                        nome: instituicao.nome,
+                                                      ),
                                             );
                                           },
                                         ),
                             ),
->>>>>>> 169dadfc364fcccc5d2aef6e4bdd2d12d0e77a55
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               child: TextFormField(
@@ -241,19 +269,14 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
                                 style: GoogleFonts.inter(fontSize: 18),
                               ),
                             ),
-<<<<<<< HEAD
-                            const Spacer(),
-                            ElevatedButton(
-                              onPressed: _salvarInstituicao,
-=======
                             ElevatedButton(
                               onPressed: _adicionarInstituicao,
->>>>>>> 169dadfc364fcccc5d2aef6e4bdd2d12d0e77a55
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF0055FF),
                                 minimumSize: const Size(double.infinity, 50),
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12)),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                               child: Text(
                                 'Adicionar Instituição',
@@ -279,8 +302,6 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
       ),
     );
   }
-<<<<<<< HEAD
-=======
 
   Widget _buildInstituicaoItem({
     required String id,
@@ -294,31 +315,46 @@ class _CadastroInstituicaoViewState extends State<CadastroInstituicaoView> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              blurRadius: 3,
-              color: Colors.black.withOpacity(0.1),
-              offset: const Offset(0, 2))
+            blurRadius: 3,
+            color: Colors.black.withOpacity(0.1),
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Text(id,
+          Expanded(
+            child: Row(
+              children: [
+                Text(
+                  id,
                   style: GoogleFonts.inter(
-                      fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(width: 15),
-              Text(nome, style: GoogleFonts.inter(fontSize: 16)),
-            ],
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: Text(
+                    nome,
+                    style: GoogleFonts.inter(fontSize: 16),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
           IconButton(
-            icon:
-                const Icon(Icons.cancel_outlined, color: Colors.red, size: 24),
+            icon: const Icon(
+              Icons.cancel_outlined,
+              color: Colors.red,
+              size: 24,
+            ),
             onPressed: onRemover,
           ),
         ],
       ),
     );
   }
->>>>>>> 169dadfc364fcccc5d2aef6e4bdd2d12d0e77a55
 }
