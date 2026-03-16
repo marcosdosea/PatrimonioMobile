@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:patrimonio_mobile/views/home_view.dart';
 import 'views/inventario_view.dart';
 
 void main() async {
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const InventarioView(),
+      home: const HomeView(),
     );
   }
 }
