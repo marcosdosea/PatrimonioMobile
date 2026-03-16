@@ -188,7 +188,7 @@ class _InstituicaoViewState extends State<InstituicaoView> {
                 ],
               ),
             ),
-            const NavBarWidget(),
+            const NavBarWidget(selectedIndex: 1),
           ],
         ),
       ),
