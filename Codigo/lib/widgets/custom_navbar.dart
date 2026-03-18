@@ -83,7 +83,8 @@ class NavBarWidget extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      height: 100,
+      // DICA: Remova o 'height: 100' ou aumente-o para ~110 para dar espaço 
+      // ao SafeArea em dispositivos com barras de navegação grandes.
       decoration: BoxDecoration(
         color: corFundo,
         boxShadow: [
@@ -98,38 +99,40 @@ class NavBarWidget extends StatelessWidget {
           topRight: Radius.circular(20),
         ),
       ),
-      child: Padding(
-        padding:
-            const EdgeInsets.fromLTRB(10, 10, 10, 10), // Substitui o fromSTEB
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(
-              context,
-              index: 0,
-              icon: Icons.home_outlined,
-              label: 'Início',
-              defaultColor: corIconeTexto,
-              activeColor: corAtiva,
-            ),
-            _buildNavItem(
-              context,
-              index: 1,
-              icon: Icons.add_sharp,
-              label: 'Cadastrar',
-              defaultColor: corIconeTexto,
-              activeColor: corAtiva,
-            ),
-            _buildNavItem(
-              context,
-              index: 2,
-              icon: Icons.menu,
-              label: 'Arquivos',
-              defaultColor: corIconeTexto,
-              activeColor: corAtiva,
-            ),
-          ],
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10), 
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(
+                context,
+                index: 0,
+                icon: Icons.home_outlined,
+                label: 'Início',
+                defaultColor: corIconeTexto,
+                activeColor: corAtiva,
+              ),
+              _buildNavItem(
+                context,
+                index: 1,
+                icon: Icons.add_sharp,
+                label: 'Cadastrar',
+                defaultColor: corIconeTexto,
+                activeColor: corAtiva,
+              ),
+              _buildNavItem(
+                context,
+                index: 2,
+                icon: Icons.menu,
+                label: 'Arquivos',
+                defaultColor: corIconeTexto,
+                activeColor: corAtiva,
+              ),
+            ],
+          ),
         ),
       ),
     );
