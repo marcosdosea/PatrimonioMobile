@@ -12,20 +12,19 @@ class ArquivosView extends StatefulWidget {
 }
 
 class _ArquivosViewState extends State<ArquivosView> {
-  // 🔹 CORREÇÃO 1: Declarar a chave que estava faltando
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   bool _processando = false;
 
-Future<void> _exportarPlanilha() async {
+  Future<void> _exportarPlanilha() async {
     setState(() => _processando = true);
     try {
       final service = ExportarPlanilhaService();
       final caminho = await service.gerarRelatorioGeral('patrimonio_exportado');
 
       final box = context.findRenderObject() as RenderBox?;
-      final posicao = box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+      final posicao =
+          box != null ? box.localToGlobal(Offset.zero) & box.size : null;
 
-      // ✅ Sintaxe correta para a v7.2.2
       await Share.shareXFiles(
         [XFile(caminho)],
         text: 'Segue a planilha de patrimônios',
@@ -45,7 +44,7 @@ Future<void> _exportarPlanilha() async {
       if (mounted) setState(() => _processando = false);
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -54,7 +53,7 @@ Future<void> _exportarPlanilha() async {
         FocusManager.instance.primaryFocus?.unfocus();
       },
       child: Scaffold(
-        key: scaffoldKey, // Agora o scaffoldKey existe
+        key: scaffoldKey,
         backgroundColor: const Color(0xFFF1F4F8),
         body: Column(
           children: [
@@ -122,7 +121,8 @@ Future<void> _exportarPlanilha() async {
           ? const SizedBox(
               width: 20,
               height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF57636C)),
+              child: CircularProgressIndicator(
+                  strokeWidth: 2, color: Color(0xFF57636C)),
             )
           : Icon(icon, size: 20, color: const Color(0xFF57636C)),
       label: Text(
@@ -144,4 +144,4 @@ Future<void> _exportarPlanilha() async {
       ),
     );
   }
-} // 🔹 FIM DA CLASSE (Última chave do arquivo)
+}

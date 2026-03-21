@@ -136,19 +136,19 @@ Future<void> _seedMockData(Database db) async {
 
   // Invent�rios vinculados �s institui��es
   final int idInv1 = await db.insert('Inventario', {
-    'nome': 'Invent�rio Anual 2025',
+    'nome': 'Inventário Anual 2025',
     'dataInicio': '2025-01-10',
     'dataFim': '2025-01-31',
     'idInstituicao': idUFS,
   });
   await db.insert('Inventario', {
-    'nome': 'Invent�rio Semestral',
+    'nome': 'Inventário Semestral',
     'dataInicio': '2025-06-01',
     'dataFim': '2025-06-15',
     'idInstituicao': idUFS,
   });
   await db.insert('Inventario', {
-    'nome': 'Invent�rio Geral 2025',
+    'nome': 'Inventário Geral 2025',
     'dataInicio': '2025-03-05',
     'dataFim': '2025-03-20',
     'idInstituicao': idUnicamp,
