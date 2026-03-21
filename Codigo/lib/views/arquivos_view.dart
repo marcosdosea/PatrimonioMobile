@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../widgets/custom_navbar.dart'; 
+import 'package:share_plus/share_plus.dart';
+import '../widgets/custom_navbar.dart';
+import 'package:patrimonio_mobile/services/exportar_planilha_service.dart';
 
 class ArquivosView extends StatefulWidget {
   const ArquivosView({super.key});
@@ -10,7 +12,36 @@ class ArquivosView extends StatefulWidget {
 }
 
 class _ArquivosViewState extends State<ArquivosView> {
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Future<void> _exportarPlanilha() async {
+    try {
+      final service = ExportarPlanilhaService();
+      final caminho =
+          await service.exportarPlanilha('patrimonio_exportado');
+
+      // 🔥 NOVO SHARE_PLUS (v12)
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(caminho)],
+          text: 'Segue a planilha de patrimônios',
+        ),
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Planilha exportada com sucesso!')),
+      );
+
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao exportar planilha')),
+      );
+    }
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +70,8 @@ class _ArquivosViewState extends State<ArquivosView> {
                           color: Colors.white,
                         ),
                         child: Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(20, 60, 20, 0),
+                          padding: const EdgeInsetsDirectional.fromSTEB(
+                              20, 60, 20, 0),
                           child: Column(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -68,18 +100,15 @@ class _ArquivosViewState extends State<ArquivosView> {
                                   ],
                                 ),
                               ),
-
                               _buildFileButton(
                                 label: 'Importar patrimônio',
-                                icon: Icons.upload_sharp,
+                                icon: Icons.download,
                                 onPressed: () => print('Importar pressionado'),
                               ),
-
                               const SizedBox(height: 10),
-
                               _buildFileButton(
                                 label: 'Exportar patrimônio',
-                                icon: Icons.download,
+                                icon: Icons.upload_sharp,
                                 onPressed: () => print('Exportar pressionado'),
                               ),
                             ],
@@ -104,7 +133,7 @@ class _ArquivosViewState extends State<ArquivosView> {
     required VoidCallback onPressed,
   }) {
     return ElevatedButton.icon(
-      onPressed: onPressed,
+      onPressed: _exportarPlanilha,
       icon: Icon(icon, size: 20, color: const Color(0xFF57636C)),
       label: Text(
         label,
