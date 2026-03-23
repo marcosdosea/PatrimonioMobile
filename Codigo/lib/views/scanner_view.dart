@@ -28,8 +28,8 @@ class _ScannerViewState extends State<ScannerView> {
     if (_isProcessing) return;
 
     final codigoLimpo = codigo.trim();
-    if (!RegExp(r'^\d{10}$').hasMatch(codigoLimpo)) {
-      _notificar("Código inválido (10 dígitos)", Colors.orange);
+    if (!RegExp(r'^\d{1,10}$').hasMatch(codigoLimpo)) {
+      _notificar("Código inválido (até 10 dígitos)", Colors.orange);
       return;
     }
 
