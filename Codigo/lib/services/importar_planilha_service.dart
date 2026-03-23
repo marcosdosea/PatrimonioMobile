@@ -2,7 +2,7 @@ import 'package:excel/excel.dart';
 import 'dart:io';
 import 'database_helper.dart';
 import 'patrimonioInventariado_service.dart';
-import '../models/patrimonioInventariado_model.dart';
+import 'package:patrimonio_mobile/models/patrimonioInventariado_model.dart';
 
 class ImportarPlanilhaService {
   final dbHelper = DatabaseHelper.instance;
@@ -15,16 +15,16 @@ class ImportarPlanilhaService {
       var sheet = excel.tables[table];
       if (sheet == null) continue;
 
-      // Primeira linha (0) é o cabeçalho, então, pulamos ela
+      // Primeira linha (0) é o cabeçalho, então, pulamos o.
       for (int i = 1; i < sheet.maxRows; i++) {
         var row = sheet.rows[i];
 
         final instituicaoNome = row[0]?.value?.toString();
         final setorNome = row[1]?.value?.toString();
         final inventarioNome = row[2]?.value?.toString();
-        final patrimonioNumero = row[3]?.value?.toString();
+        final patrimonioNumero = row[3]?.value?.toString()?.trim();
 
-        if (patrimonioNumero != null) {
+        if (patrimonioNumero != null && patrimonioNumero.isNotEmpty) {
           bool existe = await _patrimonioExiste(patrimonioNumero);
 
           if (existe) continue;
@@ -38,18 +38,16 @@ class ImportarPlanilhaService {
 
   Future<void> _salvarNoBanco(String numero, String? instituicaoNome,
       String? setorNome, String? inventarioNome) async {
-    // 1. Resolvemos a Instituição primeiro (base de tudo)
+    if (numero.isEmpty) {
+      throw Exception('Número do patrimônio não pode estar vazio');
+    }
+
     int idInst =
         await _obterOuCriarInstituicao(instituicaoNome ?? 'Desconhecida');
 
-    // 2. Com o ID da Instituição, resolvemos o Setor e o Inventário
     int idSetor = await _obterOuCriarSetor(setorNome ?? 'Desconhecido', idInst);
-    int idInv =
-        await _obterOuCriarInventario(inventarioNome ?? 'Desconhecido', idInst);
+    int idInv = await _obterOuCriarInventario(inventarioNome ?? 'Desconhecido', idInst);
 
-    // 3. Agora sim temos os IDs reais! Podemos inserir o patrimônio.
-    // Como você já tem um Service para isso, o ideal é instanciá-lo aqui:
-    // Como deve ficar:
     final patrimonioService = PatrimonioInventariadoService();
     await patrimonioService.inserirPatrimonio(PatrimonioInventariado(
         numero: numero, idSetor: idSetor, idInventario: idInv));

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:patrimonio_mobile/models/inventario_model.dart';
-import 'package:patrimonio_mobile/models/PatrimonioInventariado_model.dart';
+import 'package:patrimonio_mobile/models/patrimonioInventariado_model.dart';
 import 'package:patrimonio_mobile/models/setor_model.dart';
 import 'package:patrimonio_mobile/services/patrimonioInventariado_service.dart';
 import 'package:patrimonio_mobile/services/setor_service.dart';
@@ -18,7 +18,7 @@ class DetalhesInventarioView extends StatefulWidget {
 
 class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
   final _setorService = SetorService();
-  final _patrimonioService = PatrimonioinventariadoService();
+  final _patrimonioService = PatrimonioInventariadoService();
 
   List<Setor> _setores = [];
   List<PatrimonioInventariado> _patrimonios = [];
