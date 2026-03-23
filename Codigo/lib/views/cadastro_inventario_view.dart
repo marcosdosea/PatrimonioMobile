@@ -60,6 +60,7 @@ class _CadastrarInventarioPageState extends State<CadastrarInventarioPage> {
   Future<void> _selecionarData(bool isInicio) async {
     final DateTime? picked = await showDatePicker(
       context: context,
+      locale: const Locale('pt', 'BR'),
       initialDate: isInicio
           ? (_dataInicio ?? DateTime.now())
           : (_dataFim ?? _dataInicio ?? DateTime.now()),
