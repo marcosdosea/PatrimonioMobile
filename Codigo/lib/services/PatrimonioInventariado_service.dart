@@ -9,9 +9,19 @@ class PatrimonioinventariadoService {
     if (ativo.idInventario == 0 || ativo.idSetor == 0) {
       throw Exception("Setor ou Inventário não informados");
     }
-    
+
     Database db = await _databaseHelper.database;
-    
+
+    final List<Map<String, dynamic>> patrimoniosExistentes = await db.query(
+      'PatrimonioInventariado',
+      where: 'numero = ? AND idInventario = ?',
+      whereArgs: [ativo.numero, ativo.idInventario],
+    );
+
+    if (patrimoniosExistentes.isNotEmpty) {
+      throw Exception("Já existe um patrimônio com o código ${ativo.numero} cadastrado neste inventário");
+    }
+
     return await db.insert('PatrimonioInventariado', ativo.toMap());
   }
 

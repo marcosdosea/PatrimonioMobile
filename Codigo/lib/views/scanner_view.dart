@@ -54,7 +54,7 @@ class _ScannerViewState extends State<ScannerView> {
 
       await Future.delayed(const Duration(milliseconds: 1000));
     } catch (e) {
-      _notificar("Erro ao salvar no banco", Colors.red);
+      _notificar(e.toString().replaceFirst('Exception: ', ''), Colors.red);
     } finally {
       if (mounted) setState(() {
         _isProcessing = false;
