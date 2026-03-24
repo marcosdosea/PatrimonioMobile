@@ -123,6 +123,7 @@ class _InventarioViewState extends State<InventarioView> {
                 onTap: () async {
                   final DateTime? picked = await showDatePicker(
                     context: context,
+                    locale: const Locale('pt', 'BR'),
                     initialDate: DateTime.now(),
                     firstDate: DateTime(2025),
                     lastDate: DateTime(2030),
@@ -144,6 +145,7 @@ class _InventarioViewState extends State<InventarioView> {
                 onTap: () async {
                   final DateTime? picked = await showDatePicker(
                     context: context,
+                    locale: const Locale('pt', 'BR'),
                     initialDate: DateTime.now(),
                     firstDate: DateTime(2025),
                     lastDate: DateTime(2030),

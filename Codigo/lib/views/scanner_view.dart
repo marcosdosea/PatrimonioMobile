@@ -28,8 +28,8 @@ class _ScannerViewState extends State<ScannerView> {
     if (_isProcessing) return;
 
     final codigoLimpo = codigo.trim();
-    if (!RegExp(r'^\d{6}$').hasMatch(codigoLimpo)) {
-      _notificar("Código inválido (6 dígitos)", Colors.orange);
+    if (!RegExp(r'^\d{1,10}$').hasMatch(codigoLimpo)) {
+      _notificar("Código inválido (até 10 dígitos)", Colors.orange);
       return;
     }
 
@@ -52,9 +52,9 @@ class _ScannerViewState extends State<ScannerView> {
         _statusCor = Colors.green;
       });
 
-      await Future.delayed(const Duration(milliseconds: 800));
+      await Future.delayed(const Duration(milliseconds: 1000));
     } catch (e) {
-      _notificar("Erro ao salvar no banco", Colors.red);
+      _notificar(e.toString().replaceFirst('Exception: ', ''), Colors.red);
     } finally {
       if (mounted) setState(() {
         _isProcessing = false;
@@ -79,8 +79,8 @@ class _ScannerViewState extends State<ScannerView> {
         content: TextField(
           controller: _manualController,
           keyboardType: TextInputType.number,
-          maxLength: 6,
-          decoration: const InputDecoration(hintText: "000000"),
+          maxLength: 10,
+          decoration: const InputDecoration(hintText: "0000000000"),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancelar")),

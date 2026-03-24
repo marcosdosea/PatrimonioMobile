@@ -13,7 +13,6 @@ class InstituicaoView extends StatefulWidget {
 }
 
 class _InstituicaoViewState extends State<InstituicaoView> {
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final InstituicaoService _instituicaoService = InstituicaoService();
 
   List<Instituicao> _instituicoes = [];
@@ -58,175 +57,157 @@ class _InstituicaoViewState extends State<InstituicaoView> {
     await _carregarInstituicoes();
   }
 
+  Future<void> _deleteInstituicao(int id) async {
+    await _instituicaoService.deleteInstituicao(id);
+    await _carregarInstituicoes();
+  }
+
+  Future<void> _showDeleteDialog(Instituicao instituicao) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Excluir instituição'),
+        content: Text(
+            'Tem certeza que deseja excluir a instituição "${instituicao.nome}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Excluir',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _deleteInstituicao(instituicao.id!);
+    }
+  }
+
+  Future<void> _showEditDialog(Instituicao instituicao) async {
+    final nomeController = TextEditingController(text: instituicao.nome);
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Editar instituição'),
+        content: TextField(
+          controller: nomeController,
+          decoration: const InputDecoration(labelText: 'Nome da instituição'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (nomeController.text.trim().isEmpty) {
+                return;
+              }
+
+              await _instituicaoService.updateInstituicao(
+                instituicao.id!,
+                Instituicao(
+                  id: instituicao.id,
+                  nome: nomeController.text.trim(),
+                ),
+              );
+
+              Navigator.pop(context);
+              await _carregarInstituicoes();
+            },
+            child: const Text('Salvar'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
-      child: Scaffold(
-        key: scaffoldKey,
-        backgroundColor: const Color(0xFFF1F4F8),
-        body: Column(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: 130,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFEFF0F6),
-                    ),
-                    child: Padding(
-                      padding:
-                          const EdgeInsetsDirectional.fromSTEB(20, 40, 20, 20),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.arrow_back,
-                              size: 40,
-                              color: Color(0xFF57636C),
-                            ),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            'Instituições',
-                            style: GoogleFonts.inter(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF57636C),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      width: double.infinity,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(30),
-                          topRight: Radius.circular(30),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Lista de instituições',
-                              style: GoogleFonts.interTight(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF57636C),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Expanded(
-                              child: _carregando
-                                  ? const Center(
-                                      child: CircularProgressIndicator(),
-                                    )
-                                  : _instituicoes.isEmpty
-                                      ? Center(
-                                          child: Text(
-                                            'Nenhuma instituição cadastrada.',
-                                            style: GoogleFonts.inter(
-                                              fontSize: 15,
-                                              color: const Color(0xFF57636C),
-                                            ),
-                                          ),
-                                        )
-                                      : ListView.separated(
-                                          itemCount: _instituicoes.length,
-                                          separatorBuilder: (_, __) =>
-                                              const SizedBox(height: 10),
-                                          itemBuilder: (context, index) {
-                                            final instituicao =
-                                                _instituicoes[index];
-                                            return _buildInstituicaoItem(
-                                              instituicao: instituicao,
-                                              posicao: index + 1,
-                                            );
-                                          },
-                                        ),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton.icon(
-                              onPressed: _abrirCadastroInstituicao,
-                              icon: const Icon(Icons.add, color: Colors.white),
-                              label: Text(
-                                'Cadastrar instituição',
-                                style: GoogleFonts.interTight(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0055FF),
-                                minimumSize: const Size(double.infinity, 50),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const NavBarWidget(selectedIndex: 1),
-          ],
+    return Scaffold(
+      backgroundColor: const Color(0xFFF1F4F8),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFEFF0F6),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF57636C)),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Instituições',
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF57636C),
+          ),
+        ),
+      ),
+      body: _carregando
+          ? const Center(child: CircularProgressIndicator())
+          : _instituicoes.isEmpty
+              ? const Center(
+                  child: Text('Nenhuma instituição cadastrada.'),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _instituicoes.length,
+                  itemBuilder: (context, index) {
+                    return _buildInstituicaoItem(_instituicoes[index]);
+                  },
+                ),
+      bottomNavigationBar: const NavBarWidget(selectedIndex: 1),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _abrirCadastroInstituicao,
+        backgroundColor: const Color(0xFF0055FF),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
         ),
       ),
     );
   }
 
-  Widget _buildInstituicaoItem({
-    required Instituicao instituicao,
-    required int posicao,
-  }) {
+  Widget _buildInstituicaoItem(Instituicao instituicao) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            blurRadius: 3,
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 6,
             offset: const Offset(0, 2),
-          ),
+          )
         ],
       ),
       child: Row(
         children: [
-          Text(
-            posicao.toString(),
-            style: GoogleFonts.inter(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(width: 15),
+          const SizedBox(width: 20),
           Expanded(
             child: Text(
               instituicao.nome,
-              style: GoogleFonts.inter(fontSize: 16),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.edit, color: Color(0xFF0055FF)),
+            onPressed: () => _showEditDialog(instituicao),
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () => _showDeleteDialog(instituicao),
           ),
         ],
       ),
