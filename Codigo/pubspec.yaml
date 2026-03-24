@@ -28,3 +28,8 @@ flutter:
 
 dev_dependencies:
   sqflite_common_ffi: ^2.3.4+4
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/app_icon.png"
