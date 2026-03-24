@@ -140,7 +140,7 @@ class _ArquivosViewState extends State<ArquivosView> {
                       _buildFileButton(
                         label: 'Importar patrimônio',
                         icon: Icons.download,
-                        onPressed: () => _importarPlanilha,
+                        onPressed: _importarPlanilha,
                       ),
                       const SizedBox(height: 10),
                       _buildFileButton(
