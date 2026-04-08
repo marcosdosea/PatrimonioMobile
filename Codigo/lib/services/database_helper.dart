@@ -76,7 +76,7 @@ class DatabaseHelper {
       inv.dataInicio AS dataInicio,
       inv.dataFim AS dataFim,
       p.numero AS patrimonio
-    FROM patrimonio_inventariado p
+    FROM PatrimonioInventariado p
     INNER JOIN setores s ON p.idSetor = s.id
     INNER JOIN inventarios inv ON p.idInventario = inv.id
     INNER JOIN instituicoes inst ON inv.idInstituicao = inst.id

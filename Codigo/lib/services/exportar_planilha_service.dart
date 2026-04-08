@@ -75,7 +75,6 @@ class ExportarPlanilhaService {
   }
 
   Future<String> gerarRelatorioGeral(String nomeArquivo) async{
-    // TODO
 
     var excel = Excel.createExcel();
     String defaultSheet = excel.getDefaultSheet()!;
