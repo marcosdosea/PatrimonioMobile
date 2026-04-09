@@ -10,49 +10,62 @@ class ImportarPlanilhaService {
   final _patrimonioService = PatrimonioInventariadoService();
 
   Future<int> importarPlanilha(String caminhoArquivo) async {
-    var bytes = File(caminhoArquivo).readAsBytesSync();
-    var excel = Excel.decodeBytes(bytes);
-    int totalProcessados = 0;
+  var bytes = File(caminhoArquivo).readAsBytesSync();
+  var excel = Excel.decodeBytes(bytes);
+  int totalProcessados = 0;
 
-    for (var table in excel.tables.keys) {
-      var sheet = excel.tables[table];
-      if (sheet == null) continue;
+  for (var table in excel.tables.keys) {
+    var sheet = excel.tables[table];
+    if (sheet == null) continue;
 
-      for (int i = 1; i < sheet.maxRows; i++) {
-        var row = sheet.rows[i];
-        if (row.isEmpty || row[0] == null) continue;
+    for (int i = 1; i < sheet.maxRows; i++) {
+      var row = sheet.rows[i];
+      // Verifica se a linha está vazia ou se a primeira célula essencial é nula
+      if (row.isEmpty || row.length < 6) continue;
 
-        try {
-          final nomeInstituicao = row[0]?.value?.toString().trim();
-          final nomeSetor = row[1]?.value?.toString().trim();
-          final nomeInventario = row[2]?.value?.toString().trim();
-          final dataInicio = row[3]?.value?.toString().trim();
-          final dataFim = row[4]?.value?.toString().trim();
-          final numeroPatrimonio = row[5]?.value?.toString().trim();
+      try {
+        final nomeInstituicao = row[0]?.value?.toString().trim();
+        final nomeSetor = row[1]?.value?.toString().trim();
+        final nomeInventario = row[2]?.value?.toString().trim();
+        final dataInicio = row[3]?.value?.toString().trim();
+        final dataFim = row[4]?.value?.toString().trim();
+        
+        final numeroPatrimonioRaw = row[5]?.value?.toString().trim();
 
-          if (nomeInstituicao == null || numeroPatrimonio == null) continue;
-
-          int idInst = await _obterOuCriarInstituicao(nomeInstituicao);
-
-          int idSetor = await _obterOuCriarSetor(nomeSetor ?? "Setor Geral", idInst);
-
-          int idInv = await _obterOuCriarInventario(
-            nomeInventario ?? "Novo Inventário", 
-            idInst, 
-            dataInicio, 
-            dataFim
-          );
-
-          await _upsertPatrimonio(numeroPatrimonio, idInv, idSetor);
-          
-          totalProcessados++;
-        } catch (e) {
-          print("Erro ao processar linha $i: $e");
+        String? numeroPatrimonio;
+        if (numeroPatrimonioRaw != null) {
+          if (numeroPatrimonioRaw.endsWith('.0')) {
+            numeroPatrimonio = numeroPatrimonioRaw.substring(0, numeroPatrimonioRaw.length - 2);
+          } else {
+            numeroPatrimonio = numeroPatrimonioRaw;
+          }
         }
+
+        if (nomeInstituicao == null || numeroPatrimonio == null || numeroPatrimonio.isEmpty) {
+          continue;
+        }
+
+        int idInst = await _obterOuCriarInstituicao(nomeInstituicao);
+
+        int idSetor = await _obterOuCriarSetor(nomeSetor ?? "Setor Geral", idInst);
+
+        int idInv = await _obterOuCriarInventario(
+          nomeInventario ?? "Novo Inventário", 
+          idInst, 
+          dataInicio, 
+          dataFim
+        );
+
+        await _upsertPatrimonio(numeroPatrimonio, idInv, idSetor);
+        
+        totalProcessados++;
+      } catch (e) {
+        print("Erro ao processar linha $i: $e");
       }
     }
-    return totalProcessados;
   }
+  return totalProcessados;
+}
 
   Future<int> _obterOuCriarInstituicao(String nome) async {
     final db = await dbHelper.database;
