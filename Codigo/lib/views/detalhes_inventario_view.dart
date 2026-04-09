@@ -232,43 +232,37 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
                                     onChanged: _onSetorChanged,
                                   ),
                             const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: ElevatedButton.icon(
-                                    onPressed: (_processando ||
-                                            _setorSelecionadoId == null)
-                                        ? null
-                                        : _exportarPlanilha,
-                                    icon: _processando
-                                        ? const SizedBox(
-                                            width: 18,
-                                            height: 18,
-                                            child: CircularProgressIndicator(
-                                              color: Colors.white,
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                        : const Icon(Icons.upload_file,
-                                            size: 18, color: Colors.white),
-                                    label: Text(
-                                      "Exportar Inventário",
-                                      style: GoogleFonts.inter(
-                                          fontSize: 18, color: Colors.white),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF0055FF),
-                                      minimumSize: const Size(0, 50),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
+                            ElevatedButton.icon(
+                              onPressed: (_processando ||
+                                      _setorSelecionadoId == null)
+                                  ? null
+                                  : _exportarPlanilha,
+                              icon: _processando
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
                                       ),
-                                      disabledBackgroundColor: Colors.grey,
-                                      elevation: 2,
-                                    ),
-                                  ),
+                                    )
+                                  : const Icon(Icons.upload_file,
+                                      size: 22, color: Colors.white),
+                              label: Text(
+                                "Exportar Inventário",
+                                style: GoogleFonts.inter(
+                                    fontSize: 18, color: Colors.white),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF0055FF),
+                                minimumSize: const Size(double.infinity, 50),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                              ],
+                                disabledBackgroundColor: Colors.grey,
+                              ),
                             ),
                             const SizedBox(height: 20),
                             Text(
@@ -295,7 +289,6 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
                                           ),
                                         ).then((_) {
                                           if (!mounted) return;
-
                                           if (_setorSelecionadoId != null) {
                                             _loadPatrimonios(
                                                 _setorSelecionadoId!);
@@ -303,13 +296,14 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
                                         });
                                       },
                                 icon: const Icon(Icons.camera_alt,
-                                    color: Colors.white),
-                                label: const Text('Adicionar patrimônio',
-                                    style: TextStyle(
+                                    size: 22, color: Colors.white),
+                                label: Text('Adicionar patrimônio',
+                                    style: GoogleFonts.inter(
                                         color: Colors.white, fontSize: 18)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF0055FF),
                                   minimumSize: const Size(double.infinity, 50),
+                                  elevation: 0,
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12)),
                                   disabledBackgroundColor: Colors.grey,
