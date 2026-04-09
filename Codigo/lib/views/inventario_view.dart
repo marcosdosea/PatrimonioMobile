@@ -277,7 +277,7 @@ class _InventarioViewState extends State<InventarioView> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Inventarios',
+          'Inventários',
           style: GoogleFonts.inter(
             fontWeight: FontWeight.w600,
             color: const Color(0xFF57636C),

@@ -200,7 +200,7 @@ class _CadastrarInventarioPageState extends State<CadastrarInventarioPage> {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            'Nome do Inventario',
+                            'Nome do Inventário',
                             style: GoogleFonts.inter(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
