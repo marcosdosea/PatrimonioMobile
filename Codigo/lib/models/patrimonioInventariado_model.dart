@@ -3,8 +3,8 @@ class PatrimonioInventariado {
   String numero;
   int idInventario;
   int idSetor;
-  String? estadoPatrimonio;
-  String? estadoConservacao;
+  String estadoPatrimonio;
+  String estadoConservacao;
 
   PatrimonioInventariado({
     this.id,
@@ -32,8 +32,8 @@ class PatrimonioInventariado {
       numero: map['numero'],
       idInventario: map['idInventario'],
       idSetor: map['idSetor'],
-      estadoPatrimonio: map['estadoPatrimonio'],
-      estadoConservacao: map['estadoConservacao'],
+      estadoPatrimonio: map['estadoPatrimonio'] as String,
+      estadoConservacao: map['estadoConservacao'] as String,
     );
   }
 }

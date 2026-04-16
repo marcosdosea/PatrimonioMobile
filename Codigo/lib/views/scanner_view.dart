@@ -291,13 +291,21 @@ class _ScannerViewState extends State<ScannerView> {
                 );
               }).toList();
 
+              final chipsComEspacamento = List<Widget>.generate(
+                chips.length * 2 - (chips.isEmpty ? 0 : 1),
+                (index) {
+                  if (index.isEven) {
+                    return chips[index ~/ 2];
+                  }
+
+                  return SizedBox(width: centralizarOpcoes ? 8 : 10);
+                },
+              );
+
               if (centralizarOpcoes) {
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: chips
-                      .expand((chip) => [chip, const SizedBox(width: 8)])
-                      .toList()
-                    ..removeLast(),
+                  children: chipsComEspacamento,
                 );
               }
 
@@ -308,10 +316,7 @@ class _ScannerViewState extends State<ScannerView> {
                   alignment: Alignment.center,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: chips
-                        .expand((chip) => [chip, const SizedBox(width: 10)])
-                        .toList()
-                      ..removeLast(),
+                    children: chipsComEspacamento,
                   ),
                 ),
               );
@@ -501,27 +506,6 @@ class _ScannerViewState extends State<ScannerView> {
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.black87,
-                        side: BorderSide(color: Colors.grey.shade400),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text(
-                        "Cancelar",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
@@ -539,6 +523,27 @@ class _ScannerViewState extends State<ScannerView> {
                       },
                       child: const Text(
                         "Salvar",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.black87,
+                        side: BorderSide(color: Colors.grey.shade400),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text(
+                        "Cancelar",
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

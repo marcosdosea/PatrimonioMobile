@@ -19,7 +19,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
       onConfigure: (db) async => await db.execute('PRAGMA foreign_keys = ON'),
@@ -60,8 +60,8 @@ class DatabaseHelper {
         numero TEXT NOT NULL,
         idInventario INTEGER NOT NULL,
         idSetor INTEGER NOT NULL,
-        estadoPatrimonio TEXT,
-        estadoConservacao TEXT,
+        estadoPatrimonio TEXT NOT NULL,
+        estadoConservacao TEXT NOT NULL,
         FOREIGN KEY (idInventario) REFERENCES Inventario (id) ON DELETE CASCADE,
         FOREIGN KEY (idSetor) REFERENCES Setor (id) ON DELETE CASCADE
       )
@@ -84,6 +84,20 @@ class DatabaseHelper {
         definition: 'TEXT',
       );
     }
+
+    if (oldVersion < 3) {
+      await _normalizarEstadosPatrimonio(db);
+    }
+  }
+
+  // Para bases existentes: apenas preencher legados nulos/vazios com defaults.
+  Future<void> _normalizarEstadosPatrimonio(Database db) async {
+    await db.execute('''
+      UPDATE PatrimonioInventariado
+      SET
+        estadoPatrimonio = COALESCE(NULLIF(TRIM(estadoPatrimonio), ''), 'Em uso'),
+        estadoConservacao = COALESCE(NULLIF(TRIM(estadoConservacao), ''), 'Bom')
+    ''');
   }
 
   //Migração segura para adicionar colunas sem perder dados existentes

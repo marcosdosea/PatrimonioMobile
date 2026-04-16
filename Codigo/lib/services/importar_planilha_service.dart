@@ -120,8 +120,8 @@ class ImportarPlanilhaService {
         numero: numero,
         idInventario: idInv,
         idSetor: idSetor,
-        estadoPatrimonio: null,
-        estadoConservacao: null,
+        estadoPatrimonio: 'Em uso',
+        estadoConservacao: 'Bom',
       ));
     } else {
       var pExistente = PatrimonioInventariado.fromMap(res.first);
