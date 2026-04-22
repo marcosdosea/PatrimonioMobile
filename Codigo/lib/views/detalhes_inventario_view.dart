@@ -38,25 +38,25 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
   }
 
   Future<void> _loadSetores() async {
-  setState(() => _loadingSetores = true);
+    setState(() => _loadingSetores = true);
 
-  final todos = await _setorService.queryAllSetores();
+    final todos = await _setorService.queryAllSetores();
 
-  if (!mounted) return;
+    if (!mounted) return;
 
-  final filtrados = todos
-      .where((s) => s.idInstituicao == widget.inventario.idInstituicao)
-      .toList();
+    final filtrados = todos
+        .where((s) => s.idInstituicao == widget.inventario.idInstituicao)
+        .toList();
 
-  setState(() {
-    _setores = filtrados;
-    _loadingSetores = false;
-  });
+    setState(() {
+      _setores = filtrados;
+      _loadingSetores = false;
+    });
 
-  if (filtrados.length == 1) {
-    await _onSetorChanged(filtrados.first.id);
+    if (filtrados.length == 1) {
+      await _onSetorChanged(filtrados.first.id);
+    }
   }
-}
 
   Future<void> _onSetorChanged(int? idSetor) async {
     setState(() {
@@ -78,7 +78,6 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
       _loadingPatrimonios = false;
     });
   }
-
 
   String _formatarData(String data) {
     final partes = data.split('-');
@@ -305,27 +304,47 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
         boxShadow: [
           BoxShadow(
             blurRadius: 3,
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             offset: const Offset(0, 2),
-          )
+          ),
         ],
       ),
       child: Row(
+        crossAxisAlignment:
+            CrossAxisAlignment.center, // alinha verticalmente ao centro
         children: [
           Expanded(
-            child: Text(
-              p.numero,
-              style:
-                  GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w500),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  p.numero,
+                  style: GoogleFonts.inter(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  'Estado: ${p.estadoPatrimonio} | Conservação: ${p.estadoConservacao}',
+                  style: GoogleFonts.inter(fontSize: 12),
+                ),
+              ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.edit, color: Color(0xFF0055FF), size: 24),
-            onPressed: () => _mostrarDialogoEditar(p),
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.red, size: 24),
-            onPressed: () => _mostrarDialogoDeletar(p),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon:
+                    const Icon(Icons.edit, color: Color(0xFF0055FF), size: 24),
+                onPressed: () => _mostrarDialogoEditar(p),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline,
+                    color: Colors.red, size: 24),
+                onPressed: () => _mostrarDialogoDeletar(p),
+              ),
+            ],
           ),
         ],
       ),
@@ -379,7 +398,8 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
                             _loadPatrimonios(_setorSelecionadoId!);
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                  content: Text('Atualizado com sucesso!')),
+                                content: Text('Atualizado com sucesso!'),
+                              ),
                             );
                           }
                         } catch (e) {
@@ -407,14 +427,16 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
       builder: (context) {
         return StatefulBuilder(builder: (context, setStateDialog) {
           return AlertDialog(
-            title: Text('Excluir Patrimônio',
+            title: Text('Confirmar exclusão',
                 style: GoogleFonts.interTight(fontWeight: FontWeight.w600)),
             content: isLoading
                 ? const SizedBox(
                     height: 50,
                     child: Center(child: CircularProgressIndicator()))
                 : Text(
-                    'Tem certeza que deseja excluir o patrimônio "${p.numero}"? Essa ação não pode ser desfeita.'),
+                    'Deseja excluir o patrimônio ${p.numero}?',
+                    style: GoogleFonts.inter(),
+                  ),
             actions: [
               TextButton(
                 onPressed: isLoading ? null : () => Navigator.pop(context),
@@ -426,6 +448,7 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
                     ? null
                     : () async {
                         setStateDialog(() => isLoading = true);
+
                         try {
                           await _patrimonioService.excluirPatrimonio(p.id!);
 
@@ -434,7 +457,8 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
                             _loadPatrimonios(_setorSelecionadoId!);
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                  content: Text('Excluído com sucesso!')),
+                                content: Text('Excluído com sucesso!'),
+                              ),
                             );
                           }
                         } catch (e) {
@@ -444,8 +468,8 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
                           );
                         }
                       },
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: const Text('Excluir'),
+                child:
+                    const Text('Excluir', style: TextStyle(color: Colors.red)),
               ),
             ],
           );
