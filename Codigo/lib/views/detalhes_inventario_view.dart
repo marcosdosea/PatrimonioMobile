@@ -326,7 +326,7 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
                 ),
                 Text(
                   'Estado: ${p.estadoPatrimonio} | Conservação: ${p.estadoConservacao}',
-                  style: GoogleFonts.inter(fontSize: 12),
+                  style: GoogleFonts.inter(fontSize: 11.5, color: Colors.grey),
                 ),
               ],
             ),
@@ -351,68 +351,305 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
     );
   }
 
+  Widget _buildSeletorOpcoes({
+    required String label,
+    required List<String> opcoes,
+    required ValueNotifier<String?> notifier,
+    bool centralizarOpcoes = false,
+    bool centralizarLabel = false,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Align(
+          alignment: centralizarLabel ? Alignment.center : Alignment.centerLeft,
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Colors.black54,
+            ),
+            textAlign: centralizarLabel ? TextAlign.center : TextAlign.left,
+          ),
+        ),
+        const SizedBox(height: 8),
+        ValueListenableBuilder<String?>(
+            valueListenable: notifier,
+            builder: (context, selecionado, _) {
+              final chips = opcoes.map((opcao) {
+                final estaSelecionado = selecionado == opcao;
+                return GestureDetector(
+                  onTap: () => notifier.value = opcao,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: estaSelecionado
+                          ? const Color(0xFF0055FF)
+                          : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: estaSelecionado
+                            ? const Color(0xFF0055FF)
+                            : Colors.grey.shade300,
+                      ),
+                    ),
+                    child: Text(
+                      opcao,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: estaSelecionado ? Colors.white : Colors.black54,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList();
+
+              final chipsComEspacamento = List<Widget>.generate(
+                chips.length * 2 - (chips.isEmpty ? 0 : 1),
+                (index) {
+                  if (index.isEven) {
+                    return chips[index ~/ 2];
+                  }
+
+                  return SizedBox(width: centralizarOpcoes ? 8 : 10);
+                },
+              );
+
+              if (centralizarOpcoes) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: chipsComEspacamento,
+                );
+              }
+
+              return SizedBox(
+                width: double.infinity,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: chipsComEspacamento,
+                  ),
+                ),
+              );
+            }),
+      ]),
+    );
+  }
+
   Future<void> _mostrarDialogoEditar(PatrimonioInventariado p) async {
     final controller = TextEditingController(text: p.numero);
+    final estadoPatrimonioNotifier = ValueNotifier<String?>(p.estadoPatrimonio);
+    final estadoConservacaoNotifier =
+        ValueNotifier<String?>(p.estadoConservacao);
     bool isLoading = false;
 
     await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
         return StatefulBuilder(builder: (context, setStateDialog) {
-          return AlertDialog(
-            title: Text('Editar Patrimônio',
-                style: GoogleFonts.interTight(fontWeight: FontWeight.w600)),
-            content: isLoading
-                ? const SizedBox(
-                    height: 50,
-                    child: Center(child: CircularProgressIndicator()))
-                : TextField(
-                    controller: controller,
-                    keyboardType: TextInputType.number,
-                    maxLength: 10,
-                    decoration: const InputDecoration(
-                      labelText: 'Número do Patrimônio',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-            actions: [
-              TextButton(
-                onPressed: isLoading ? null : () => Navigator.pop(context),
-                child: const Text('Cancelar',
-                    style: TextStyle(color: Colors.grey)),
-              ),
-              TextButton(
-                onPressed: isLoading
-                    ? null
-                    : () async {
-                        if (controller.text.trim().isEmpty) return;
-
-                        setStateDialog(() => isLoading = true);
-
-                        try {
-                          p.numero = controller.text.trim();
-                          await _patrimonioService.atualizarPatrimonio(p);
-
-                          if (mounted) {
-                            Navigator.pop(context);
-                            _loadPatrimonios(_setorSelecionadoId!);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Atualizado com sucesso!'),
+          return Dialog(
+            insetPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 560),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.edit_rounded,
+                          color: Colors.blue,
+                          size: 42,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        'Editar Patrimônio',
+                        style: GoogleFonts.interTight(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 20),
+                      Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 200),
+                          child: isLoading
+                              ? const SizedBox(
+                                  height: 50,
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                              : TextField(
+                                  style: const TextStyle(
+                                    fontSize: 23.5,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  controller: controller,
+                                  keyboardType: TextInputType.number,
+                                  maxLength: 10,
+                                  autofocus: true,
+                                  decoration: InputDecoration(
+                                    hintText: '0000000000',
+                                    counterText: '',
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: Colors.blue,
+                                        width: 1.6,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      _buildSeletorOpcoes(
+                        label: 'Estado do patrimônio',
+                        opcoes: const ['Em uso', 'Defeituoso', 'Ocioso'],
+                        notifier: estadoPatrimonioNotifier,
+                        centralizarOpcoes: true,
+                        centralizarLabel: true,
+                      ),
+                      const SizedBox(height: 14),
+                      _buildSeletorOpcoes(
+                        label: 'Estado de conservação',
+                        opcoes: const ['Ótimo', 'Bom', 'Regular', 'Ruim'],
+                        notifier: estadoConservacaoNotifier,
+                        centralizarLabel: true,
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
-                            );
-                          }
-                        } catch (e) {
-                          setStateDialog(() => isLoading = false);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Erro ao atualizar: $e')),
-                          );
-                        }
-                      },
-                child: const Text('Salvar',
-                    style: TextStyle(color: Color(0xFF0055FF))),
+                              onPressed: isLoading
+                                  ? null
+                                  : () async {
+                                      final numero = controller.text.trim();
+                                      final estadoPatrimonio =
+                                          estadoPatrimonioNotifier.value;
+                                      final estadoConservacao =
+                                          estadoConservacaoNotifier.value;
+
+                                      if (numero.isEmpty ||
+                                          estadoPatrimonio == null ||
+                                          estadoConservacao == null) {
+                                        return;
+                                      }
+
+                                      setStateDialog(() => isLoading = true);
+
+                                      try {
+                                        p.numero = numero;
+                                        p.estadoPatrimonio = estadoPatrimonio;
+                                        p.estadoConservacao = estadoConservacao;
+
+                                        await _patrimonioService
+                                            .atualizarPatrimonio(p);
+
+                                        if (mounted) {
+                                          Navigator.pop(context);
+                                          _loadPatrimonios(
+                                              _setorSelecionadoId!);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Atualizado com sucesso!'),
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        setStateDialog(() => isLoading = false);
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content:
+                                                Text('Erro ao atualizar: $e'),
+                                          ),
+                                        );
+                                      }
+                                    },
+                              child: const Text(
+                                'Salvar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.black87,
+                                side: BorderSide(color: Colors.grey.shade400),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: isLoading
+                                  ? null
+                                  : () => Navigator.pop(context),
+                              child: const Text(
+                                'Cancelar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ],
+            ),
           );
         });
       },
@@ -424,54 +661,135 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
 
     await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
         return StatefulBuilder(builder: (context, setStateDialog) {
-          return AlertDialog(
-            title: Text('Confirmar exclusão',
-                style: GoogleFonts.interTight(fontWeight: FontWeight.w600)),
-            content: isLoading
-                ? const SizedBox(
-                    height: 50,
-                    child: Center(child: CircularProgressIndicator()))
-                : Text(
-                    'Deseja excluir o patrimônio ${p.numero}?',
-                    style: GoogleFonts.inter(),
-                  ),
-            actions: [
-              TextButton(
-                onPressed: isLoading ? null : () => Navigator.pop(context),
-                child: const Text('Cancelar',
-                    style: TextStyle(color: Colors.grey)),
-              ),
-              TextButton(
-                onPressed: isLoading
-                    ? null
-                    : () async {
-                        setStateDialog(() => isLoading = true);
-
-                        try {
-                          await _patrimonioService.excluirPatrimonio(p.id!);
-
-                          if (mounted) {
-                            Navigator.pop(context);
-                            _loadPatrimonios(_setorSelecionadoId!);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Excluído com sucesso!'),
+          return Dialog(
+            insetPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 560),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.red,
+                        size: 42,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      'Confirmar exclusão?',
+                      style: GoogleFonts.interTight(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 14),
+                    isLoading
+                        ? const SizedBox(
+                            height: 50,
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                        : Text(
+                            'Deseja excluir o patrimônio ${p.numero}?',
+                            style: GoogleFonts.inter(fontSize: 15),
+                            textAlign: TextAlign.center,
+                          ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                            );
-                          }
-                        } catch (e) {
-                          setStateDialog(() => isLoading = false);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Erro ao excluir: $e')),
-                          );
-                        }
-                      },
-                child:
-                    const Text('Excluir', style: TextStyle(color: Colors.red)),
+                            ),
+                            onPressed: isLoading
+                                ? null
+                                : () async {
+                                    setStateDialog(() => isLoading = true);
+
+                                    try {
+                                      await _patrimonioService
+                                          .excluirPatrimonio(p.id!);
+
+                                      if (mounted) {
+                                        Navigator.pop(context);
+                                        _loadPatrimonios(_setorSelecionadoId!);
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content:
+                                                Text('Excluído com sucesso!'),
+                                          ),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      setStateDialog(() => isLoading = false);
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content:
+                                                Text('Erro ao excluir: $e')),
+                                      );
+                                    }
+                                  },
+                            child: const Text(
+                              'Excluir',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.black87,
+                              side: BorderSide(color: Colors.grey.shade400),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed:
+                                isLoading ? null : () => Navigator.pop(context),
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ],
+            ),
           );
         });
       },
