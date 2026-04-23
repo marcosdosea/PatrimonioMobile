@@ -66,24 +66,96 @@ class _InventarioViewState extends State<InventarioView> {
   Future<void> _showDeleteDialog(Inventario inventario) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Excluir inventário'),
-        content: Text(
-          'Tem certeza que deseja excluir o inventário "${inventario.nome}"?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Excluir',
-              style: TextStyle(color: Colors.red),
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.red,
+                    size: 42,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  'Excluir inventário?',
+                  style: GoogleFonts.interTight(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  'Tem certeza que deseja excluir o inventário "${inventario.nome}"?',
+                  style: GoogleFonts.inter(fontSize: 15),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text(
+                          'Excluir',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.black87,
+                          side: BorderSide(color: Colors.grey.shade400),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
 
@@ -99,117 +171,203 @@ class _InventarioViewState extends State<InventarioView> {
     final dataFimController = TextEditingController(text: inventario.dataFim);
     int? selectedInstituicao = inventario.idInstituicao;
 
-    await showDialog<void>(
+    final updated = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Editar inventário'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nomeController,
-                decoration:
-                    const InputDecoration(labelText: 'Nome do inventário'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: dataInicioController,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  labelText: 'Data início',
-                  suffixIcon: Icon(Icons.calendar_today),
-                ),
-                onTap: () async {
-                  final DateTime? picked = await showDatePicker(
-                    context: context,
-                    locale: const Locale('pt', 'BR'),
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2025),
-                    lastDate: DateTime(2030),
-                  );
-                  if (picked != null) {
-                    dataInicioController.text =
-                        DateFormat('yyyy-MM-dd').format(picked);
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: dataFimController,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  labelText: 'Data fim',
-                  suffixIcon: Icon(Icons.calendar_today),
-                ),
-                onTap: () async {
-                  final DateTime? picked = await showDatePicker(
-                    context: context,
-                    locale: const Locale('pt', 'BR'),
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2025),
-                    lastDate: DateTime(2030),
-                  );
-                  if (picked != null) {
-                    dataFimController.text =
-                        DateFormat('yyyy-MM-dd').format(picked);
-                  }
-                },
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<int>(
-                initialValue: _instituicoes.any(
-                  (inst) => inst.id == selectedInstituicao,
-                )
-                    ? selectedInstituicao
-                    : null,
-                decoration: const InputDecoration(labelText: 'Instituição'),
-                items: _instituicoes
-                    .map(
-                      (inst) => DropdownMenuItem(
-                        value: inst.id,
-                        child: Text(inst.nome),
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.edit_rounded,
+                      color: Colors.blue,
+                      size: 42,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    'Editar inventário',
+                    style: GoogleFonts.interTight(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: nomeController,
+                    decoration: InputDecoration(
+                      labelText: 'Nome do inventário',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: dataInicioController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Data início',
+                      suffixIcon: const Icon(Icons.calendar_today),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onTap: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        locale: const Locale('pt', 'BR'),
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2025),
+                        lastDate: DateTime(2030),
+                      );
+                      if (picked != null) {
+                        dataInicioController.text =
+                            DateFormat('yyyy-MM-dd').format(picked);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: dataFimController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'Data fim',
+                      suffixIcon: const Icon(Icons.calendar_today),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onTap: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        locale: const Locale('pt', 'BR'),
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2025),
+                        lastDate: DateTime(2030),
+                      );
+                      if (picked != null) {
+                        dataFimController.text =
+                            DateFormat('yyyy-MM-dd').format(picked);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<int>(
+                    initialValue: _instituicoes.any(
+                      (inst) => inst.id == selectedInstituicao,
                     )
-                    .toList(),
-                onChanged: (value) => selectedInstituicao = value,
+                        ? selectedInstituicao
+                        : null,
+                    decoration: InputDecoration(
+                      labelText: 'Instituição',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    items: _instituicoes
+                        .map(
+                          (inst) => DropdownMenuItem(
+                            value: inst.id,
+                            child: Text(inst.nome),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) => selectedInstituicao = value,
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () async {
+                            if (nomeController.text.trim().isEmpty ||
+                                dataInicioController.text.trim().isEmpty ||
+                                dataFimController.text.trim().isEmpty ||
+                                selectedInstituicao == null) {
+                              return;
+                            }
+
+                            await _inventarioService.updateInventario(
+                              Inventario(
+                                id: inventario.id,
+                                nome: nomeController.text.trim(),
+                                dataInicio: dataInicioController.text.trim(),
+                                dataFim: dataFimController.text.trim(),
+                                idInstituicao: selectedInstituicao!,
+                              ),
+                            );
+
+                            if (!context.mounted) return;
+                            Navigator.pop(context, true);
+                          },
+                          child: const Text(
+                            'Salvar',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.black87,
+                            side: BorderSide(color: Colors.grey.shade400),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text(
+                            'Cancelar',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (nomeController.text.trim().isEmpty ||
-                  dataInicioController.text.trim().isEmpty ||
-                  dataFimController.text.trim().isEmpty ||
-                  selectedInstituicao == null) {
-                return;
-              }
-
-              await _inventarioService.updateInventario(
-                Inventario(
-                  id: inventario.id,
-                  nome: nomeController.text.trim(),
-                  dataInicio: dataInicioController.text.trim(),
-                  dataFim: dataFimController.text.trim(),
-                  idInstituicao: selectedInstituicao!,
-                ),
-              );
-
-              if (!context.mounted) return;
-              Navigator.pop(context);
-              await _loadData();
-            },
-            child: const Text('Salvar'),
-          ),
-        ],
       ),
     );
+
+    if (updated == true) {
+      await _loadData();
+    }
   }
 
   Widget _buildInventarioItem(Inventario inventario) {

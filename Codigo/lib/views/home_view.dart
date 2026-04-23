@@ -30,8 +30,8 @@ class _HomeViewState extends State<HomeView> {
 
   bool _loadingInstituicoes = true;
   bool _loadingInventarios = false;
-  bool _processandoImportacao = false;
-  bool _processandoExportacao = false;
+  int? _importandoInventarioId;
+  int? _exportandoInventarioId;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -86,7 +86,7 @@ class _HomeViewState extends State<HomeView> {
       );
 
       if (result != null && result.files.single.path != null) {
-        setState(() => _processandoImportacao = true);
+        setState(() => _importandoInventarioId = inventario.id);
 
         await _importarService.importarPlanilha(
           result.files.single.path!,
@@ -116,13 +116,13 @@ class _HomeViewState extends State<HomeView> {
       );
     } finally {
       if (mounted) {
-        setState(() => _processandoImportacao = false);
+        setState(() => _importandoInventarioId = null);
       }
     }
   }
 
   Future<void> _exportarInventario(Inventario inventario) async {
-    setState(() => _processandoExportacao = true);
+    setState(() => _exportandoInventarioId = inventario.id);
 
     try {
       final service = ExportarPlanilhaService();
@@ -164,7 +164,7 @@ class _HomeViewState extends State<HomeView> {
       );
     } finally {
       if (mounted) {
-        setState(() => _processandoExportacao = false);
+        setState(() => _exportandoInventarioId = null);
       }
     }
   }
@@ -302,18 +302,24 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildCardInventario(Inventario inventario) {
+    final isExportando = _exportandoInventarioId == inventario.id;
+    final isImportando = _importandoInventarioId == inventario.id;
+    final isProcessando = isExportando || isImportando;
+
     return InkWell(
       borderRadius: BorderRadius.circular(18),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => DetalhesInventarioView(
-              inventario: inventario,
-            ),
-          ),
-        );
-      },
+      onTap: isProcessando
+          ? null
+          : () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => DetalhesInventarioView(
+                    inventario: inventario,
+                  ),
+                ),
+              );
+            },
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -358,35 +364,39 @@ class _HomeViewState extends State<HomeView> {
                 ],
               ),
             ),
-            IconButton(
-              onPressed: _processandoExportacao
-                  ? null
-                  : () => _exportarInventario(inventario),
-              icon: _processandoExportacao
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(
-                      Icons.upload_file,
-                      color: Color(0xFF0055FF),
-                    ),
+            AbsorbPointer(
+              absorbing: isExportando,
+              child: IconButton(
+                onPressed:
+                    isExportando ? null : () => _exportarInventario(inventario),
+                icon: isExportando
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(
+                        Icons.upload_file,
+                        color: Color(0xFF0055FF),
+                      ),
+              ),
             ),
-            IconButton(
-              onPressed: _processandoImportacao
-                  ? null
-                  : () => _importarInventario(inventario),
-              icon: _processandoImportacao
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(
-                      Icons.download,
-                      color: Color(0xFF0055FF),
-                    ),
+            AbsorbPointer(
+              absorbing: isImportando,
+              child: IconButton(
+                onPressed:
+                    isImportando ? null : () => _importarInventario(inventario),
+                icon: isImportando
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(
+                        Icons.download,
+                        color: Color(0xFF0055FF),
+                      ),
+              ),
             ),
           ],
         ),

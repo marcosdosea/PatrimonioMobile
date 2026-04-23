@@ -480,25 +480,36 @@ class _ScannerViewState extends State<ScannerView> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
-              TextField(
-                controller: _manualController,
-                keyboardType: TextInputType.number,
-                maxLength: 10,
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: "0000000000",
-                  counterText: "",
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide:
-                        const BorderSide(color: Colors.blue, width: 1.6),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 220),
+                  child: TextField(
+                    controller: _manualController,
+                    keyboardType: TextInputType.number,
+                    maxLength: 10,
+                    autofocus: true,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 23.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: "0000000000",
+                      counterText: "",
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide:
+                            const BorderSide(color: Colors.blue, width: 1.6),
+                      ),
+                    ),
                   ),
                 ),
               ),
