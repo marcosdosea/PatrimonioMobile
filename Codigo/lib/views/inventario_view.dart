@@ -374,22 +374,22 @@ class _InventarioViewState extends State<InventarioView> {
 
   Widget _buildInventarioItem(Inventario inventario) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           )
         ],
       ),
       child: Row(
         children: [
-          const SizedBox(width: 20),
+          const SizedBox(width: 24),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -397,27 +397,35 @@ class _InventarioViewState extends State<InventarioView> {
                 Text(
                   inventario.nome,
                   style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
                 Text(
-                  'Inicio: ${inventario.dataInicio} | Fim: ${inventario.dataFim}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.black54,
+                    'Início: ${(inventario.dataInicio)} ',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.grey,
+                    ),
                   ),
-                ),
+                  Text(
+                    'Fim: ${(inventario.dataFim)}',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.grey,
+                    ),
+                  ),
               ],
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.edit, color: Color(0xFF0055FF)),
+            icon: const Icon(Icons.edit, color: Color(0xFF0055FF), size: 32),
             onPressed: () => _showEditDialog(inventario),
           ),
+          const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
+            icon: const Icon(Icons.delete, color: Colors.red, size: 32),
             onPressed: () => _showDeleteDialog(inventario),
           ),
         ],

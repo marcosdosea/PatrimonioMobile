@@ -124,7 +124,7 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
                                 Text(
                                   widget.inventario.nome,
                                   style: GoogleFonts.interTight(
-                                    fontSize: 18,
+                                    fontSize: 22,
                                     fontWeight: FontWeight.w600,
                                     color: const Color(0xFF57636C),
                                   ),
@@ -135,13 +135,13 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
                                   children: [
                                     Text(
                                       'Início: ${_formatarData(widget.inventario.dataInicio)}',
-                                      style: GoogleFonts.inter(fontSize: 12),
+                                      style: GoogleFonts.inter(fontSize: 16),
                                     ),
                                     const Text(' | ',
                                         style: TextStyle(fontSize: 12)),
                                     Text(
                                       'Fim: ${_formatarData(widget.inventario.dataFim)}',
-                                      style: GoogleFonts.inter(fontSize: 12),
+                                      style: GoogleFonts.inter(fontSize: 16),
                                     ),
                                   ],
                                 ),
@@ -323,7 +323,11 @@ class _DetalhesInventarioViewState extends State<DetalhesInventarioView> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Estado: ${p.estadoPatrimonio} | Conservação: ${p.estadoConservacao}',
+                  'Estado: ${p.estadoPatrimonio}',
+                  style: GoogleFonts.inter(fontSize: 14, color: Colors.grey),
+                ),
+                Text(
+                  'Conservação: ${p.estadoConservacao}',
                   style: GoogleFonts.inter(fontSize: 14, color: Colors.grey),
                 ),
               ],

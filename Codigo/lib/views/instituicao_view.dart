@@ -336,37 +336,38 @@ class _InstituicaoViewState extends State<InstituicaoView> {
 
   Widget _buildInstituicaoItem(Instituicao instituicao) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           )
         ],
       ),
       child: Row(
         children: [
-          const SizedBox(width: 20),
+          const SizedBox(width: 24),
           Expanded(
             child: Text(
               instituicao.nome,
               style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.edit, color: Color(0xFF0055FF)),
+            icon: const Icon(Icons.edit, color: Color(0xFF0055FF), size: 32),
             onPressed: () => _showEditDialog(instituicao),
           ),
+          const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
+            icon: const Icon(Icons.delete, color: Colors.red, size: 32),
             onPressed: () => _showDeleteDialog(instituicao),
           ),
         ],
