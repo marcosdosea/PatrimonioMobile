@@ -5,7 +5,8 @@ import 'dart:io';
 import 'database_helper.dart';
 
 class ExportarPlanilhaService {
-  Future<String> gerarRelatorioPorInventario(int idInventario, String nomeArquivo) async {
+  Future<String> gerarRelatorioPorInventario(
+      int idInventario, String nomeArquivo) async {
     final List<Map<String, dynamic>> dadosBanco =
         await DatabaseHelper.instance.getRelatorioExcelPorId(idInventario);
 
@@ -20,7 +21,9 @@ class ExportarPlanilhaService {
       'Inventário',
       'Data Início',
       'Data Fim',
-      'Patrimônio'
+      'Patrimônio',
+      'Estado do Patrimônio',
+      'Estado de Conservação',
     ];
 
     for (var i = 0; i < cabecalho.length; i++) {
@@ -38,30 +41,48 @@ class ExportarPlanilhaService {
       String dataInicio = row['dataInicio']?.toString() ?? "";
       String dataFim = row['dataFim']?.toString() ?? "";
       String patAtual = row['patrimonio']?.toString() ?? "";
+      String estadoPatrimonio = row['estadoPatrimonio']?.toString() ?? "";
+      String estadoConservacao = row['estadoConservacao']?.toString() ?? "";
 
       sheetObject
-          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: linhaAtual))
+          .cell(
+              CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: linhaAtual))
           .value = TextCellValue(instAtual);
 
       sheetObject
-          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: linhaAtual))
+          .cell(
+              CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: linhaAtual))
           .value = TextCellValue(setorAtual);
 
       sheetObject
-          .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: linhaAtual))
+          .cell(
+              CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: linhaAtual))
           .value = TextCellValue(invAtual);
 
       sheetObject
-          .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: linhaAtual))
+          .cell(
+              CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: linhaAtual))
           .value = TextCellValue(dataInicio);
 
       sheetObject
-          .cell(CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: linhaAtual))
+          .cell(
+              CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: linhaAtual))
           .value = TextCellValue(dataFim);
 
       sheetObject
-          .cell(CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: linhaAtual))
+          .cell(
+              CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: linhaAtual))
           .value = TextCellValue(patAtual);
+
+      sheetObject
+          .cell(
+              CellIndex.indexByColumnRow(columnIndex: 6, rowIndex: linhaAtual))
+          .value = TextCellValue(estadoPatrimonio);
+
+      sheetObject
+          .cell(
+              CellIndex.indexByColumnRow(columnIndex: 7, rowIndex: linhaAtual))
+          .value = TextCellValue(estadoConservacao);
 
       linhaAtual++;
     }
