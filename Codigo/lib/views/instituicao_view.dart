@@ -66,7 +66,7 @@ class _InstituicaoViewState extends State<InstituicaoView> {
     final confirmed = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Dialog(
+      builder: (dialogContext) => Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: ConstrainedBox(
@@ -109,27 +109,6 @@ class _InstituicaoViewState extends State<InstituicaoView> {
                 Row(
                   children: [
                     Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        onPressed: () => Navigator.pop(context, true),
-                        child: const Text(
-                          'Excluir',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.black87,
@@ -139,9 +118,30 @@ class _InstituicaoViewState extends State<InstituicaoView> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        onPressed: () => Navigator.pop(context, false),
+                        onPressed: () => Navigator.of(dialogContext).pop(false),
                         child: const Text(
                           'Cancelar',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () => Navigator.of(dialogContext).pop(true),
+                        child: const Text(
+                          'Excluir',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -169,7 +169,7 @@ class _InstituicaoViewState extends State<InstituicaoView> {
     final updated = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Dialog(
+      builder: (dialogContext) => Dialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: ConstrainedBox(
@@ -218,6 +218,28 @@ class _InstituicaoViewState extends State<InstituicaoView> {
                   Row(
                     children: [
                       Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.black87,
+                            side: BorderSide(color: Colors.grey.shade400),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () =>
+                              Navigator.of(dialogContext).pop(false),
+                          child: const Text(
+                            'Cancelar',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
@@ -240,32 +262,11 @@ class _InstituicaoViewState extends State<InstituicaoView> {
                               ),
                             );
 
-                            if (!context.mounted) return;
-                            Navigator.pop(context, true);
+                            if (!mounted) return;
+                            Navigator.of(dialogContext).pop(true);
                           },
                           child: const Text(
                             'Salvar',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.black87,
-                            side: BorderSide(color: Colors.grey.shade400),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text(
-                            'Cancelar',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -284,6 +285,7 @@ class _InstituicaoViewState extends State<InstituicaoView> {
     );
 
     if (updated == true) {
+      if (!mounted) return;
       await _carregarInstituicoes();
     }
   }
@@ -334,37 +336,38 @@ class _InstituicaoViewState extends State<InstituicaoView> {
 
   Widget _buildInstituicaoItem(Instituicao instituicao) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           )
         ],
       ),
       child: Row(
         children: [
-          const SizedBox(width: 20),
+          const SizedBox(width: 24),
           Expanded(
             child: Text(
               instituicao.nome,
               style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.edit, color: Color(0xFF0055FF)),
+            icon: const Icon(Icons.edit, color: Color(0xFF0055FF), size: 32),
             onPressed: () => _showEditDialog(instituicao),
           ),
+          const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
+            icon: const Icon(Icons.delete, color: Colors.red, size: 32),
             onPressed: () => _showDeleteDialog(instituicao),
           ),
         ],
